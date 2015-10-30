@@ -11,7 +11,36 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20151030182844) do
+ActiveRecord::Schema.define(version: 20151030212547) do
+
+  create_table "characters", force: :cascade do |t|
+    t.string   "character_name"
+    t.string   "character_image"
+    t.integer  "health"
+    t.integer  "life"
+    t.boolean  "is_powerup"
+    t.integer  "max_allowed"
+    t.boolean  "is_enemy"
+    t.datetime "created_at",      null: false
+    t.datetime "updated_at",      null: false
+  end
+
+  create_table "gamestates", force: :cascade do |t|
+    t.integer  "user_id"
+    t.integer  "users_id"
+    t.integer  "score_last"
+    t.integer  "score_high"
+    t.integer  "number_kills"
+    t.boolean  "is_playing"
+    t.boolean  "is_loggedin"
+    t.integer  "character_id"
+    t.integer  "characters_id"
+    t.datetime "created_at",    null: false
+    t.datetime "updated_at",    null: false
+  end
+
+  add_index "gamestates", ["characters_id"], name: "index_gamestates_on_characters_id"
+  add_index "gamestates", ["users_id"], name: "index_gamestates_on_users_id"
 
   create_table "users", force: :cascade do |t|
     t.string   "name"
