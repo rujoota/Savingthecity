@@ -13,3 +13,26 @@
  *= require_tree .
  *= require_self
  */
+#imgparent
+{
+    position:relative;
+    heigth:200px;
+    width:150px;
+}
+#image_parent
+{
+    position:relative;
+    heigth:200px;
+    width:150px;
+}
+.character_img
+{
+    height:150px;
+    width:100px;
+    position: absolute;
+}
+.newpos
+{
+    position:relative;
+    left: 10px;
+}
