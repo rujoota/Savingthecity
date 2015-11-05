@@ -16,14 +16,6 @@
         $("#itemFromPusher").html($("#itemFromPusher").html()+"<br/>"+data.message);
     });
 
-    var channel2 = pusher.subscribe('key_pressed');
-    channel2.bind('left-key', function (data) {
-        changePosition("left");
-    });
-    channel2.bind('right-key', function (data) {
-        changePosition("right");
-    });
-
 </script>
 
 
@@ -34,9 +26,5 @@
 <% end %>
 
 <div id="itemFromPusher" style="width:200px;height:200px"></div>
-
-
-<div id="image_parent">
-  <img src=<%= image_path("superman.jpg") %>  id="superman_img" name="superman_img" class='character_img'/>
-</div>
+<%= link_to "Enter game", action: "show" %>
 

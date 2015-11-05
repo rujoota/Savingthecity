@@ -18,7 +18,7 @@ class CharacterController < ApplicationController
 		
 	end
 
-	def show
+	def game
 		
 	end
 

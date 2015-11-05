@@ -25,5 +25,20 @@ class GamestateController < ApplicationController
   def move_image_right
     Pusher.trigger('key_pressed', 'right-key', {:message => 'data'})
   end
+  def move_image_up
+    Pusher.trigger('key_pressed', 'up-key', {:message => 'data'})
+  end
+  def move_image_down
+    Pusher.trigger('key_pressed', 'down-key', {:message => 'data'})
+  end
+
+  def show_bullet
+    path=view_context.image_path "bullet.png"
+    Pusher.trigger('key_pressed', 'enter-key', {:message => path})
+  end
+
+  def show
+
+  end
 
 end
