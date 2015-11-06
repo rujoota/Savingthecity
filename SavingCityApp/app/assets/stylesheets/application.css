@@ -13,3 +13,50 @@
  *= require_tree .
  *= require_self
  */
+body { padding-bottom: 70px; }
+#imgparent
+{
+    position:relative;
+    heigth:200px;
+    width:150px;
+}
+#image_parent
+{
+    position:relative;
+    heigth:200px;
+    width:150px;
+}
+.character_img
+{
+    height:150px;
+    width:100px;
+    position: absolute;
+}
+.player2
+{
+    top:200px;
+}
+.newpos
+{
+    position:relative;
+    left: 10px;
+}
+footer
+{
+    padding-top:10px;
+
+}
+.bulletImg
+{
+    height: 10px;
+    width:10px;
+    z-index:1000;
+    position:absolute;
+    left:50px;
+    top:40px;
+}
+#bullet_start
+{
+    height:150px;
+    width:100px;
+}

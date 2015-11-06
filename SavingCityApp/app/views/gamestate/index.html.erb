@@ -1,2 +1,30 @@
-<h1>Gamestate#index</h1>
-<p>Find me in app/views/gamestate/index.html.erb</p>
+<script src="http://js.pusher.com/3.0/pusher.min.js"></script>
+<script>
+    // Enable pusher logging - don't include this in production
+    Pusher.log = function(message) {
+        if (window.console && window.console.log) {
+            window.console.log(message);
+        }
+    };
+
+    var pusher = new Pusher('84f09cdc1b38da624919', {
+        encrypted: true
+    });
+
+    var channel = pusher.subscribe('test_channel');
+    channel.bind('my-event', function (data) {
+        $("#itemFromPusher").html($("#itemFromPusher").html()+"<br/>"+data.message);
+    });
+
+</script>
+
+
+
+<%= form_tag("/gamestate/hello_world",remote: true) do %>
+    <%= text_field_tag(:txtToSend) %>
+    <%= submit_tag("Send") %>
+<% end %>
+
+<div id="itemFromPusher" style="width:200px;height:200px"></div>
+<%= link_to "Enter game", action: "show" %>
+

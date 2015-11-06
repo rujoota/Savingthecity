@@ -1,0 +1,49 @@
+<script src="http://js.pusher.com/3.0/pusher.min.js"></script>
+
+<script>
+    // Enable pusher logging - don't include this in production
+    Pusher.log = function(message) {
+        if (window.console && window.console.log) {
+            window.console.log(message);
+        }
+    };
+
+    var pusher = new Pusher('84f09cdc1b38da624919', {
+        encrypted: true
+    });
+
+    var keychannel = pusher.subscribe('key_pressed');
+    keychannel.bind('left-key', function (data) {
+        changePosition("left","");
+    });
+    keychannel.bind('right-key', function (data) {
+        changePosition("right","");
+    });
+    keychannel.bind('up-key', function (data) {
+        changePosition("up","");
+    });
+    keychannel.bind('down-key', function (data) {
+        changePosition("down","");
+    });
+    keychannel.bind('enter-key', function (data) {
+        changePosition("enter",data.message,data.explode);
+    });
+</script>
+
+
+<div id="image_parent">
+  <img src=<%= image_path("superman.jpg") %>  id="superman_img" name="superman_img" class='character_img'/>
+  <div id="bullet_start">
+  </div>
+  <img src=<%= image_path("spiderman.png") %>  id="spiderman_img" name="spiderman_img" class='character_img player2'/>
+  <div class="explosionDiv">
+
+  </div>
+</div>
+
+<audio id="explosionAudio" src=<%= audio_path("snd_explosion2.wav") %> type="audio/mpeg"></audio>
+
+
+
+
+

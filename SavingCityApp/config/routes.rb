@@ -16,6 +16,21 @@ Rails.application.routes.draw do
   get    'login'   => 'sessions#new'
   post   'login'   => 'sessions#create'
   delete 'logout'  => 'sessions#destroy'
+  post 'gamestate/index'
+  get 'gamestate/index'
+  post 'gamestate/hello_world'
+  get 'gamestate/hello_world'
+  #post 'gamestate/move_image_left'
+  get 'gamestate/move_image_left'
+
+  #post 'gamestate/move_image_right'
+  get 'gamestate/move_image_right'
+  get 'gamestate/move_image_up'
+  get 'gamestate/move_image_down'
+  get 'gamestate/show_bullet'
+
+  get 'gamestate/show'
+
   resources :users
   resources :character
   resources :gamestate
