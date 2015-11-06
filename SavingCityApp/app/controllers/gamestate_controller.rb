@@ -34,7 +34,8 @@ class GamestateController < ApplicationController
 
   def show_bullet
     path=view_context.image_path "bullet.png"
-    Pusher.trigger('key_pressed', 'enter-key', {:message => path})
+    explosionpath=view_context.image_path "explosion1_1.png"
+    Pusher.trigger('key_pressed', 'enter-key', {:message => path,:explode=>explosionpath})
   end
 
   def show

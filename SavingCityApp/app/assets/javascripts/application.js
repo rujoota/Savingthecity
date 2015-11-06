@@ -14,10 +14,14 @@
 //= require jquery_ujs
 //= require bootstrap
 //= require turbolinks
+//= require jquery-ui
 //= require_tree .
 //setTimeout(foo, 1000);
 var timeOutBullet;
-function collide(a, b) {
+var bulletSteps=20;
+var playerSteps=40;
+var explodeimgpath;
+function collideRectangle(a, b) {
     var aPos = a.position();
     var bPos = b.position();
 
@@ -31,13 +35,13 @@ function collide(a, b) {
     var bTop = bPos.top;
     var bBottom = bPos.top + b.height();
 
-// http://tekpool.wordpress.com/2006/10/11/rectangle-intersection-determine-if-two-given-rectangles-intersect-each-other-or-not/
     return !( bLeft > aRight
         || bRight < aLeft
         || bTop > aBottom
         || bBottom < aTop
     );
 }
+
 function getPosition(cssPos)
 {
     if (cssPos == "auto")
@@ -48,26 +52,55 @@ function getPosition(cssPos)
 }
 function showBullet(imgPath)
 {
-    strToAppend="<img src='"+imgPath+"' alt='bullet' class='bulletImg'/>";
+    strToAppend="<img src='"+imgPath+"' alt='bullet' class='bulletImg' id='bullet'/>";
     $('#bullet_start').append(strToAppend);
-    var bulletTop=getPosition($('.bulletImg').css('top'))
-    updateBulletLocation(0,0,bulletTop,0);
+    var bulletTop=getPosition($('.bulletImg').css('top'));
+    //mtop=bulletTop;
+    startAnimation(bulletTop);
+    //updateBulletLocation(0,0,bulletTop,0);
 }
-function removeBullet()
+
+function startAnimation(bulletTop){
+    bulletTop=bulletTop+bulletSteps;
+    if(bulletTop>400) {
+        //clearTimeout(timeOutBullet);
+        $(".bulletImg").remove();
+    }
+    else if(collideRectangle($(".bulletImg"),$(".player2")))
+    {
+        //$(".player2").remove();
+        showBlast();
+        //var ret=initialize();
+    }
+    else
+        $(".bulletImg").animate({"top": bulletTop}, "fast",
+            function(){startAnimation(bulletTop);});
+}
+function showBlast()
 {
-    $('#bullet_start').html("");
+    strToAppend="<img src='"+explodeimgpath+"' alt='explosion' class='myexplode' id='explosion'/>";
+    $('.explosionDiv').append(strToAppend);
+    $(".player2").remove();
+    $('.myexplode').hide("explode", { pieces: 2 }, 3000);
+    var exaudio = document.getElementById("explosionAudio");
+    exaudio.play();
+    $(".bulletImg").remove();
 }
 function updateBulletLocation(left,right,top,bottom)
 {
     top=top+10;
     $(".bulletImg").css('top',top);
-    if(top>200) {
-        clearTimeout(timeOutBullet);
+    if(top>300) {
+
+        //clearTimeout(timeOutBullet);
         removeBullet();
     }
     else if(collide($(".bulletImg"),$(".player2")))
     {
-        alert("collision");
+        //alert('in collide');
+        //initialize();
+        //alert("collision");
+        removeObject($(".player2"));
     }
     else
         timeOutBullet=setTimeout(function(){ updateBulletLocation(0,0,top,0) }, 500);
@@ -100,7 +133,7 @@ $(document).bind('keydown', function(e) {
             break;
     }
 });
-function changePosition(direction,extras)
+function changePosition(direction,extras,explodepath)
 {
     var elem = $("#superman_img");
     var myleft = elem.css("left");
@@ -108,43 +141,47 @@ function changePosition(direction,extras)
     switch(direction)
     {
         case "left":
-            if (myleft == "auto")
+            /*if (myleft == "auto")
                 myleft = 0;
             else if (myleft.indexOf("px") > 0)
                 myleft = parseInt(myleft.split("px")[0]);
 
             myleft = myleft - 10;
-            elem.css("left", myleft);
+            elem.css("left", myleft);*/
+            elem.animate({left: "-="+playerSteps}, "slow");
             break;
         case "right":
-            if (myleft == "auto")
+            /*if (myleft == "auto")
                 myleft = 0;
             else if (myleft.indexOf("px") > 0)
                 myleft = parseInt(myleft.split("px")[0]);
 
             myleft = myleft + 10;
-            elem.css("left", myleft);
+            elem.css("left", myleft);*/
+            elem.animate({left: "+="+playerSteps}, "slow");
             break;
         case "down":
-            if(mytop=="auto")
+            /*if(mytop=="auto")
                 mytop=0;
             else if(mytop.indexOf("px")>0)
                 mytop=parseInt(mytop.split("px")[0]);
 
             mytop=mytop+10;
-            elem.css("top",mytop);
+            elem.css("top",mytop);*/
+            elem.animate({top: "+="+playerSteps}, "slow");
             break;
         case "up":
-            if(mytop=="auto")
+            /*if(mytop=="auto")
                 mytop=0;
             else if(mytop.indexOf("px")>0)
                 mytop=parseInt(mytop.split("px")[0]);
 
             mytop=mytop-10;
-            elem.css("top",mytop);
+            elem.css("top",mytop);*/
+            elem.animate({top: "-="+playerSteps}, "slow");
             break;
         case "enter":
-
+            explodeimgpath=explodepath;
             showBullet(extras);
 
             break;
