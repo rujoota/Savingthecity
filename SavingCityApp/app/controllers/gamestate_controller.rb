@@ -41,5 +41,14 @@ class GamestateController < ApplicationController
   def show
 
   end
+  def game
+
+  end
+
+  def gamecanvas
+
+  end
+
+
 
 end

@@ -1,0 +1,174 @@
+<script>
+    var ctx,canvas;
+    var windowSize={width:1024,height:600};
+    var playerSize={width:100,height:150};
+    $( document ).ready(function() {
+        mymain();
+    });
+    function mymain()
+    {
+        // Create the canvas
+        canvas = document.createElement("canvas");
+        ctx = canvas.getContext("2d");
+        canvas.width = windowSize.width;
+        canvas.height = windowSize.height;
+        var mydiv=document.getElementById('divcanvas');
+        mydiv.appendChild(canvas);
+        init();
+    }
+    var bgImage,p1Image,p2Image;
+    var p1Loaded=false,p2Loaded=false,bgLoaded=false;
+    function init()
+    {
+        // Background image
+
+        bgImage = document.createElement('img');
+        bgImage.src = "<%= asset_path('roading.png') %>";
+        bgImage.onload = function () {
+
+            bgLoaded=true;
+        }
+        p1Image = document.createElement('img');
+        p1Image.src = "<%= asset_path('spiderman.png') %>";
+        p1Image.onload = function () {
+            p1Loaded=true;
+        }
+        p2Image = document.createElement('img');
+
+        p2Image.src = "<%= asset_path('batman.gif') %>";
+        p2Image.onload = function () {
+            p2Loaded=true;
+        }
+
+        bulletImg=document.createElement('img');
+        bulletImg.src="<%= image_path("bulletsmall.gif") %>";
+        bulletObj.x=player1.x+(player1.width/2);
+        bulletObj.y=player1.y+(player1.height/2);
+        setTimeout(drawFrame, 1000);
+    }
+    var keyPressed={left:false,right:false,up:false,down:false,enter:false};
+    $(document).bind('keydown', function(e) {
+        var code = (e.keyCode ? e.keyCode : e.which);
+        keyPressed.left=false;
+        keyPressed.right=false;
+        keyPressed.down=false;
+        keyPressed.up=false;
+        keyPressed.enter=false;
+        switch(code) {
+            case 37://left key
+                keyPressed.left=true;
+                updateFrame();
+                break;
+            case 39://right key
+                keyPressed.right=true;
+                updateFrame();
+                //elem.animate({left: "+="+playerSteps}, "slow");
+                break;
+            case 40://down key
+                keyPressed.down=true;
+                updateFrame();
+                //elem.animate({top: "+="+playerSteps}, "slow");
+                break;
+            case 38://up key
+                keyPressed.up=true;
+                updateFrame();
+                //elem.animate({top: "-="+playerSteps}, "slow");
+                break;
+            case 13://enter key
+                keyPressed.enter=true;
+                updateFrame();
+                break;
+
+        }
+
+    });
+    var player1={x:0,y:windowSize.height-playerSize.height-10,speed:10,width:playerSize.width,height:playerSize.height};
+    var player2={x:windowSize.width-playerSize.width-10,y:windowSize.height-playerSize.height-10,speed:10,width:playerSize.width,height:playerSize.height};
+    var loadingDone=false;
+    var drawFrameTimeout;
+    var backData;
+    function drawFrame()
+    {
+        if(bgLoaded && p1Loaded && p2Loaded)
+        {
+            drawBackground();
+            backData = ctx.getImageData(player1.x, player1.y, player1.width, player1.height);
+            drawPlayer(p1Image,player1.x,player1.y,p1Loaded);
+            drawPlayer(p2Image,player2.x,player2.y,p1Loaded);
+            loadingDone = true;
+            clearTimeout(drawFrameTimeout);
+
+        }
+        else
+        {
+            if(!loadingDone)
+                drawFrameTimeout=setTimeout(drawFrame, 500);
+        }
+    }
+    window.requestAnimFrame = (function(callback) {
+        return window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame ||
+                function(callback) {
+                    window.setTimeout(callback, 1000 / 60);
+                };
+    })();
+    var startTime;
+    function updateFrame()
+    {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        if(loadingDone) {
+            if (keyPressed.left) {
+                player1.x -= player1.speed;
+            }
+            else if (keyPressed.right)
+                player1.x += player1.speed;
+            else if(keyPressed.up)
+                player1.y-=player1.speed;
+            else if(keyPressed.down)
+                player1.y+=player1.speed;
+            drawBackground();
+            drawPlayer(p1Image, player1.x, player1.y, p1Loaded);
+            drawPlayer(p2Image, player2.x, player2.y, p2Loaded);
+            if(keyPressed.enter) {
+
+                if(bulletObj.x==(player1.width/2)+player1.x)
+                    startTime = (new Date()).getTime();
+                ctx.drawImage(bulletImg,bulletObj.x,bulletObj.y);
+                if(bulletObj.x<=300) {
+                    setTimeout(function () {
+                        requestAnimFrame(function () {
+                            animateBullet(startTime);
+                        });
+                    }, 1000);
+                }
+            }
+        }
+        else
+            alert("loading not done");
+    }
+    var bulletImg;
+    var bulletObj={x:0,y:0,width:9,height:20,speed:20};
+
+    function animateBullet(startTime)
+    {
+        var time = (new Date()).getTime() - startTime;
+        var linearSpeed = 10;
+        // pixels / second
+        var newX = linearSpeed * time / 1000;
+        bulletObj.x+=newX;
+        updateFrame();
+
+    }
+    function drawPlayer(playerImg,x,y,isLoaded)
+    {
+        if(isLoaded)
+            ctx.drawImage(playerImg, x, y,playerSize.width,playerSize.height);
+    }
+    function drawBackground()
+    {
+        if(bgLoaded)
+            ctx.drawImage(bgImage, 0, 0);
+    }
+</script>
+<div id="divcanvas">
+
+</div>

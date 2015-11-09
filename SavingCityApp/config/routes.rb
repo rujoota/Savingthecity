@@ -26,7 +26,8 @@ Rails.application.routes.draw do
   get 'gamestate/show_bullet'
 
   get 'gamestate/show'
-
+  get 'gamestate/game'
+  get 'gamestate/gamecanvas'
   resources :users
   resources :character
   resources :gamestate

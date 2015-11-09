@@ -21,6 +21,7 @@ var timeOutBullet;
 var bulletSteps=20;
 var playerSteps=40;
 var explodeimgpath;
+
 function collideRectangle(a, b) {
     var aPos = a.position();
     var bPos = b.position();
@@ -110,9 +111,8 @@ function updateBulletLocation(left,right,top,bottom)
     xhr.setRequestHeader('X-CSRF-Token', token);
 });*/
 
-$(document).bind('keydown', function(e) {
+/*$(document).bind('keydown', function(e) {
     var code = (e.keyCode ? e.keyCode : e.which);
-
     switch(code) {
         case 37://left key
             $.ajax({url: "/gamestate/move_image_left" });
@@ -132,7 +132,7 @@ $(document).bind('keydown', function(e) {
             $.ajax("/gamestate/show_bullet");
             break;
     }
-});
+});*/
 function changePosition(direction,extras,explodepath)
 {
     var elem = $("#superman_img");
@@ -141,43 +141,43 @@ function changePosition(direction,extras,explodepath)
     switch(direction)
     {
         case "left":
-            /*if (myleft == "auto")
+            if (myleft == "auto")
                 myleft = 0;
             else if (myleft.indexOf("px") > 0)
                 myleft = parseInt(myleft.split("px")[0]);
 
             myleft = myleft - 10;
-            elem.css("left", myleft);*/
+            elem.css("left", myleft);
             elem.animate({left: "-="+playerSteps}, "slow");
             break;
         case "right":
-            /*if (myleft == "auto")
+            if (myleft == "auto")
                 myleft = 0;
             else if (myleft.indexOf("px") > 0)
                 myleft = parseInt(myleft.split("px")[0]);
 
             myleft = myleft + 10;
-            elem.css("left", myleft);*/
+            elem.css("left", myleft);
             elem.animate({left: "+="+playerSteps}, "slow");
             break;
         case "down":
-            /*if(mytop=="auto")
+            if(mytop=="auto")
                 mytop=0;
             else if(mytop.indexOf("px")>0)
                 mytop=parseInt(mytop.split("px")[0]);
 
             mytop=mytop+10;
-            elem.css("top",mytop);*/
+            elem.css("top",mytop);
             elem.animate({top: "+="+playerSteps}, "slow");
             break;
         case "up":
-            /*if(mytop=="auto")
+            if(mytop=="auto")
                 mytop=0;
             else if(mytop.indexOf("px")>0)
                 mytop=parseInt(mytop.split("px")[0]);
 
             mytop=mytop-10;
-            elem.css("top",mytop);*/
+            elem.css("top",mytop);
             elem.animate({top: "-="+playerSteps}, "slow");
             break;
         case "enter":

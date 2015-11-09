@@ -1,0 +1,43 @@
+<script src="http://js.pusher.com/3.0/pusher.min.js"></script>
+
+<script>
+    // Enable pusher logging - don't include this in production
+    Pusher.log = function(message) {
+        if (window.console && window.console.log) {
+            window.console.log(message);
+        }
+    };
+
+    var pusher = new Pusher('84f09cdc1b38da624919', {
+        encrypted: true
+    });
+
+    var keychannel = pusher.subscribe('key_pressed');
+    keychannel.bind('left-key', function (data) {
+        changePosition("left","");
+    });
+    keychannel.bind('right-key', function (data) {
+        changePosition("right","");
+    });
+    keychannel.bind('up-key', function (data) {
+        changePosition("up","");
+    });
+    keychannel.bind('down-key', function (data) {
+        changePosition("down","");
+    });
+    keychannel.bind('enter-key', function (data) {
+        changePosition("enter",data.message,data.explode);
+    });
+</script>
+<div id="mainbg" >
+
+    <div id="player1_parent" class="image_parent">
+        <img src=<%= image_path("batman.gif") %>  id="player1" name="player1" class='character_img player1'/>
+        <div id="bullet_player1" class="bullet_start"/>
+    </div>
+
+</div>
+
+
+
+

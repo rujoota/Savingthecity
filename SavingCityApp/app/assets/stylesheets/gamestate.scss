@@ -1,3 +1,24 @@
 // Place all the styles related to the gamestate controller here.
 // They will automatically be included in application.css.
 // You can use Sass (SCSS) here: http://sass-lang.com/
+#mainbg
+{
+
+  background: url(image_path("roading.png")) no-repeat center center fixed;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+
+
+  min-height: 100%;
+  min-width: 1024px;
+
+
+  width: 80%;
+  height: auto;
+
+
+  position: fixed;
+  left:10%;
+}

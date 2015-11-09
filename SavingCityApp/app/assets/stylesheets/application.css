@@ -14,17 +14,24 @@
  *= require_self
  */
 body { padding-bottom: 70px; }
+/*#mainbg
+{
+    margin: 0;
+    padding: 0;
+    z-index: -1;
+    position: absolute;
+}*/
+
 #imgparent
 {
     position:relative;
     heigth:200px;
     width:150px;
+    overflow:auto;
 }
-#image_parent
+.image_parent
 {
     position:relative;
-    heigth:200px;
-    width:150px;
 }
 .character_img
 {
@@ -32,9 +39,15 @@ body { padding-bottom: 70px; }
     width:100px;
     position: absolute;
 }
+.player1
+{
+    top:50%;
+    left:30%;
+}
 .player2
 {
-    top:200px;
+    top:100%;
+    left:50%;
 }
 .newpos
 {
@@ -54,9 +67,4 @@ footer
     position:absolute;
     left:50px;
     top:40px;
-}
-#bullet_start
-{
-    height:150px;
-    width:100px;
 }
