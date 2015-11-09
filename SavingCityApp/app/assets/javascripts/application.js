@@ -14,7 +14,7 @@
 //= require jquery_ujs
 //= require bootstrap
 //= require turbolinks
-//= require jquery-ui
+
 //= require_tree .
 //setTimeout(foo, 1000);
 var timeOutBullet;
