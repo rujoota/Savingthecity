@@ -24,6 +24,8 @@ Rails.application.routes.draw do
   get 'gamestate/move_image_left'
 
   #post 'gamestate/move_image_right'
+
+
   get 'gamestate/move_image_right'
   get 'gamestate/move_image_up'
   get 'gamestate/move_image_down'

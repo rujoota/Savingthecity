@@ -21,21 +21,26 @@ class GamestateController < ApplicationController
 
   def move_image_left
     Pusher.trigger('key_pressed', 'left-key', {:message => 'data'})
+    render :nothing => true
   end
   def move_image_right
     Pusher.trigger('key_pressed', 'right-key', {:message => 'data'})
+    render :nothing => true
   end
   def move_image_up
     Pusher.trigger('key_pressed', 'up-key', {:message => 'data'})
+    render :nothing => true
   end
   def move_image_down
     Pusher.trigger('key_pressed', 'down-key', {:message => 'data'})
+    render :nothing => true
   end
 
   def show_bullet
-    path=view_context.image_path "bullet.png"
-    explosionpath=view_context.image_path "explosion1_1.png"
-    Pusher.trigger('key_pressed', 'enter-key', {:message => path,:explode=>explosionpath})
+    #path=view_context.image_path "bullet.png"
+    #explosionpath=view_context.image_path "explosion1_1.png"
+    Pusher.trigger('key_pressed', 'enter-key', {:message => "data"})
+    render :nothing => true
   end
 
   def show
@@ -46,9 +51,10 @@ class GamestateController < ApplicationController
   end
 
   def gamecanvas
-
+    @explosionArr=Array.new(12);
+    for i in 1..6
+      @explosionArr[i-1]=view_context.image_path "explosion1_#{i}.png"
+    end
   end
-
-
 
 end

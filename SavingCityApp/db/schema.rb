@@ -13,9 +13,6 @@
 
 ActiveRecord::Schema.define(version: 20151104202944) do
 
-  # These are extensions that must be enabled in order to support this database
-  enable_extension "plpgsql"
-
   create_table "characters", force: :cascade do |t|
     t.string   "character_name"
     t.string   "character_image"
@@ -42,8 +39,8 @@ ActiveRecord::Schema.define(version: 20151104202944) do
     t.datetime "updated_at",    null: false
   end
 
-  add_index "gamestates", ["characters_id"], name: "index_gamestates_on_characters_id", using: :btree
-  add_index "gamestates", ["users_id"], name: "index_gamestates_on_users_id", using: :btree
+  add_index "gamestates", ["characters_id"], name: "index_gamestates_on_characters_id"
+  add_index "gamestates", ["users_id"], name: "index_gamestates_on_users_id"
 
   create_table "users", force: :cascade do |t|
     t.string   "name"
@@ -60,8 +57,6 @@ ActiveRecord::Schema.define(version: 20151104202944) do
     t.datetime "reset_sent_at"
   end
 
-  add_index "users", ["email"], name: "index_users_on_email", unique: true, using: :btree
+  add_index "users", ["email"], name: "index_users_on_email", unique: true
 
-  add_foreign_key "gamestates", "characters"
-  add_foreign_key "gamestates", "users"
 end
