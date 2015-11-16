@@ -10,25 +10,35 @@
     var pusher = new Pusher('84f09cdc1b38da624919', {
         encrypted: true
     });
-
+    var directionGlobal;
     var keychannel = pusher.subscribe('key_pressed');
     keychannel.bind('left-key', function (data) {
-        updateFrame("left");
+        directionGlobal="left";
+        //updatePlayer("left");
     });
     keychannel.bind('right-key', function (data) {
-        updateFrame("right");
+        directionGlobal="right";
+        //updatePlayer("right");
     });
     keychannel.bind('up-key', function (data) {
-        updateFrame("up");
+        directionGlobal="up";
+        //updatePlayer("up");
     });
     keychannel.bind('down-key', function (data) {
-        updateFrame("down");
+        directionGlobal="down";
+        //updatePlayer("down");
     });
     keychannel.bind('enter-key', function (data) {
-        updateFrame("enter");
+        directionGlobal="enter";
+        //updatePlayer("enter");
     });
 
-    var bgImage,p1Image,p2Image,bulletImg;
+    /*var playerchannel = pusher.subscribe('player_channel');
+    playerchannel.bind('player_joined', function (data) {
+        setupPlayer('rshah1@mail.sfsu.edu',1);
+    });*/
+
+    var bgImage,p1Image,p2Image,bulletImg,villainImg;
     var blastImgs=new Array();
     $( document ).ready(function() {
         initGameSprites();
@@ -48,6 +58,9 @@
 
         bulletImg=document.createElement('img');
         bulletImg.src="<%= image_path("bulletsmall.gif") %>";
+
+        villainImg=document.createElement('img');
+        villainImg.src="<%= image_path("supervillain.PNG") %>";
 
         <% @explosionArr.each do |explosion| %>
             blastImgs.push("<%= explosion %>");

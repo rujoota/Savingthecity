@@ -55,6 +55,8 @@ class GamestateController < ApplicationController
     for i in 1..6
       @explosionArr[i-1]=view_context.image_path "explosion1_#{i}.png"
     end
+    # after player has selected character....
+    #Pusher.trigger('player_channel', 'player_joined', {:message => 'rshah1@gmail.com'})
   end
 
 end

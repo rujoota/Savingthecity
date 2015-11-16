@@ -1,14 +1,20 @@
 var ctx,canvas;
 var windowSize={width:1024,height:600};
 var playerSize={width:100,height:150};
-var bulletObj={x:0,y:0,width:9,height:20,speed:20};
+var bulletObj={x:0,y:0,width:9,height:20,speed:30,direction:1};
 var keyPressed={left:false,right:false,up:false,down:false,enter:false};
-var player1={x:0,y:windowSize.height-playerSize.height-10,speed:20,width:playerSize.width,height:playerSize.height};
-var player2={x:windowSize.width-playerSize.width-10,y:windowSize.height-playerSize.height-10,speed:10,width:playerSize.width,height:playerSize.height};
-var blast={x:0,y:0,width:60,height:60};
-var loadingDone=false;
-var drawFrameTimeout;
 
+var player1={x:0,y:windowSize.height-playerSize.height-10,speed:20,width:playerSize.width,height:playerSize.height,sprite:''};
+var player2={x:windowSize.width-playerSize.width-10,y:windowSize.height-playerSize.height-10,speed:10,width:playerSize.width,height:playerSize.height,sprite:''};
+
+var blast={x:0,y:0,width:60,height:60};
+var loadingDone=false,vLoaded=false;
+var drawFrameTimeout;
+var me,other;
+var initialVillainX=100;
+var initialVillainY=60;
+var villain={x:initialVillainX,y:initialVillainY,width:80,height:100,sprite:""};
+// initializing canvas
 function mymain()
 {
     // Create the canvas
@@ -19,9 +25,32 @@ function mymain()
     var mydiv=document.getElementById('divcanvas');
     mydiv.appendChild(canvas);
     //setTimeout(drawFrame, 1000);
+    setupPlayer('',2);
     init();
 }
 
+// setting up player1 and player2
+function setupPlayer(playerid,playernumber)
+{
+    if(playernumber==1) {
+        me = player1;
+        other=player2;
+        me.sprite=p1Image;
+        other.sprite=p2Image;
+        bulletObj.direction=1;
+    }
+    else
+    {
+        me=player2;
+        other=player1;
+        me.sprite=p2Image;
+        other.sprite=p1Image;
+        bulletObj.direction=-1;
+    }
+    villain.sprite=villainImg;
+}
+
+// loading all the images for sprites
 function init()
 {
     bgImage.onload = function () {
@@ -35,9 +64,11 @@ function init()
     p2Image.onload = function () {
         p2Loaded=true;
     }
-
-    bulletObj.x=player1.x+(player1.width/2);
-    bulletObj.y=player1.y+(player1.height/2);
+    villainImg.onload=function(){
+        vLoaded=true;
+    }
+    bulletObj.x=me.x+(me.width/2);
+    bulletObj.y=me.y+(me.height/2);
     setTimeout(drawFrame, 1000);
 }
 
@@ -79,16 +110,18 @@ var healthP1={x:10,y:50,health:10};
 var healthP2={x:windowSize.width-100,y:50,health:10};
 function drawFrame()
 {
-    if(bgLoaded && p1Loaded && p2Loaded)
+    if(bgLoaded && p1Loaded && p2Loaded && vLoaded)
     {
         drawBackground();
         drawPlayer(p1Image,player1.x,player1.y,p1Loaded);
-        drawPlayer(p2Image,player2.x,player2.y,p1Loaded);
+        drawPlayer(p2Image,player2.x,player2.y,p2Loaded);
         loadingDone = true;
         ctx.font= 'Italic 15px Sans-Serif';
         displayScore();
         displayHealth();
+        displayVillain();
         clearTimeout(drawFrameTimeout);
+        setTimeout(updateFrame, 500);
     }
     else
     {
@@ -148,78 +181,159 @@ function displayScore()
     ctx.fillText("score: "+scoreP1.score,scoreP1.x,scoreP1.y);
     ctx.fillText("score: "+scoreP2.score,scoreP2.x,scoreP2.y);
 }
-function updateFrame(direction)
+var timeEnd;
+var bulletBg;
+function updateFrame(time)
 {
+    timeStart=Date.now();
+    diff=timeStart-timeEnd;
+    //alert("timestart="+timeStart+" timeEnd="+timeEnd+" diff="+diff);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     if(loadingDone) {
-        updatePlayer(direction,player1);
-        checkBoundriesForPlayer(player1);
-        checkBoundriesForPlayer(player2);
+
         ctx.drawImage(bgImage, 0, 0);
+        updatePlayer(directionGlobal,me);
+        checkBoundriesForPlayer(me);
+        checkBoundriesForPlayer(other);
+
         // score and health
         displayScore();
         displayHealth();
 
+        /*if(diff>20) {
+            //alert(diff);
+            updateVillain();
+        }*/
+        updateVillain();
         // save original background to show when a player dies
-        imgData = ctx.getImageData(player2.x, player2.y, player2.width, player2.height);
-        ctx.drawImage(p1Image, player1.x, player1.y,player1.width,player1.height);
+        imgData = ctx.getImageData(other.x, other.y, other.width, other.height);
+        ctx.drawImage(me.sprite, me.x, me.y,me.width,me.height);
 
         // if blasted
-        if(direction=="blast") {
-            //animFrame=requestAnimationFrame(function(){updateFrame("blast")});
-            timer=setTimeout(function(){updateFrame("blast")},150);
-            showBlast(player2);
+        if(directionGlobal=="blast") {
+
+            //timer=setTimeout(function(){updateFrame("blast")},150);
+            //showBlast(other);
+            showBlast(blastedVillain);
         }
-        else
-            ctx.drawImage(p2Image, player2.x, player2.y,player2.width,player2.height);
-        if(direction=="enter")
+        //else
+            ctx.drawImage(other.sprite, other.x, other.y,other.width,other.height);
+        if(directionGlobal=="enter")
         {
-            animFrame=requestAnimationFrame(function(){updateFrame("enter")});
+            //setTimeout(function(){updateFrame("enter")}, 500);
+            bulletBg = ctx.getImageData(bulletObj.x, bulletObj.y, bulletObj.width, bulletObj.height);
             updateBullet();
         }
+        timeEnd=Date.now();
+        setTimeout(function(){updateFrame(timeEnd)}, 100);
     }
 }
+var villains=new Array();
+var villainInRow=6;
+function updateVillain()
+{
+    for(i=0;i<villainInRow;i++) {
+        if(villains[i]!=blastedVillain) {
+            villains[i].y += villains[i].speedY;
+            //villains[i].y+=1;
+            if (villains[i].y + villains[i].height > canvas.height) {
+                villains[i].y = initialVillainY;
+            }
+            ctx.drawImage(villains[i].sprite, villains[i].x, villains[i].y, villains[i].width, villains[i].height);
+        }
+    }
+
+}
+function displayVillain()
+{
+    for(i=0;i<villainInRow;i++) {
+        villains.push({x:villain.x,y:villain.y,width:villain.width,height:villain.height,sprite:villain.sprite,speedX:50,speedY:1});
+        if(i>0)
+            villains[i].x=villains[i-1].x+villains[i].width+villains[i].speedX;
+        villains[i].speedY=getRandomArbitrary(5,20);
+        ctx.drawImage(villains[i].sprite, villains[i].x, villains[i].y, villains[i].width, villains[i].height);
+    }
+
+}
+function getRandomArbitrary(min, max) {
+    return Math.random() * (max - min) + min;
+}
+var blastedVillain;
 function updateBullet()
 {
+    var oldx=bulletObj.x,oldy=bulletObj.y;
     // bullet out of canvas border
     if(isOutOfBoundry(bulletObj))
         resetBullet();
     else {
-        if (!isColliding(bulletObj, player2)) { // collided with opponent
-            ctx.drawImage(bulletImg, bulletObj.x, bulletObj.y);
-            delta++;
-            bulletObj.x = (player1.width / 2) + player1.x + delta * 10;
-            bulletObj.y = player1.y + (player1.height / 2);
+        var isCollided=false;
+        for(i=0;i<villainInRow;i++) {
+            if (isColliding(bulletObj, villains[i])) {
+                isCollided=true;
+                blastedVillain=villains[i];
+                break;
+            }
+        }
+        if(!isCollided)
+        {
+            if(isColliding(bulletObj,other))
+                isCollided=true;
+        }
+        if(!isCollided)
+        {
+            // not collided with opponent
+                ctx.drawImage(bulletImg, bulletObj.x, bulletObj.y);
+
+                oldx = bulletObj.x;
+                oldy = bulletObj.y;
+
+                delta++;
+                bulletObj.x = (me.width / 2) + me.x + delta * bulletObj.speed*bulletObj.direction;
+                bulletObj.y = me.y + (me.height / 2);
+                //bulletObj.x = (me.width / 2) + me.x;
+                //bulletObj.y = (me.height / 2) + me.y - delta * bulletObj.speed;
 
         }
-        else {
+        else { // when collision occurs
             resetBullet();
             // refresh and show blast
             var exaudio = document.getElementById("explosionAudio");
             exaudio.play();
-            timer = setTimeout(function () {updateFrame("blast")}, 150);
+            directionGlobal = "blast";
+            //timer = setTimeout(function () {updateFrame("blast")}, 150);
         }
+
     }
+
 }
 function updatePlayer(direction,player)
 {
     if (direction=="left") {
         player.x -= player.speed;
+        directionGlobal="";
     }
-    else if (direction=="right")
+    else if (direction=="right") {
         player.x += player.speed;
-    else if(direction=="up")
-        player.y-=player.speed;
-    else if(direction=="down")
-        player.y+=player.speed;
+        directionGlobal="";
+    }
+    else if(direction=="up") {
+        player.y -= player.speed;
+        directionGlobal="";
+    }
+    else if(direction=="down") {
+        player.y += player.speed;
+        directionGlobal = "";
+    }
+
 }
 function resetBullet()
 {
-    bulletObj.x = (player1.width / 2) + player1.x;
-    bulletObj.y=player1.y+(player1.height/2);
+    bulletObj.x = (me.width / 2) + me.x;
+    bulletObj.y=me.y+(me.height/2);
     cancelAnimationFrame(animFrame);
     delta=0;
 }
+
 function showBlast(diedPlayer)
 {
     blastImg=document.createElement('img');
@@ -234,9 +348,10 @@ function showBlast(diedPlayer)
             healthP2.health--;
         }
         if(blastCount>=6) {
-            clearTimeout(timer);
+            //clearTimeout(timer);
             ctx.putImageData(imgData, diedPlayer.x,diedPlayer.y);
             blastCount=0;
+            directionGlobal="";
         }
     }
 }
