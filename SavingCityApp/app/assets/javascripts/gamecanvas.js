@@ -210,14 +210,18 @@ function updateFrame(time)
         ctx.drawImage(me.sprite, me.x, me.y,me.width,me.height);
 
         // if blasted
-        if(directionGlobal=="blast") {
+        if(directionGlobal=="blastPlayer") {
 
             //timer=setTimeout(function(){updateFrame("blast")},150);
-            //showBlast(other);
-            showBlast(blastedVillain);
+            showBlast(other);
+
         }
-        //else
+        else
             ctx.drawImage(other.sprite, other.x, other.y,other.width,other.height);
+        if(directionGlobal=="blastVillain")
+        {
+            showBlast(villains[blastedVillain]);
+        }
         if(directionGlobal=="enter")
         {
             //setTimeout(function(){updateFrame("enter")}, 500);
@@ -232,14 +236,19 @@ var villains=new Array();
 var villainInRow=6;
 function updateVillain()
 {
-    for(i=0;i<villainInRow;i++) {
-        if(villains[i]!=blastedVillain) {
+    for(i=0;i<villains.length;i++) {
+        if(i!=blastedVillain) {
             villains[i].y += villains[i].speedY;
             //villains[i].y+=1;
             if (villains[i].y + villains[i].height > canvas.height) {
                 villains[i].y = initialVillainY;
             }
             ctx.drawImage(villains[i].sprite, villains[i].x, villains[i].y, villains[i].width, villains[i].height);
+        }
+        else
+        {
+            //villains.splice(i,1);
+            //villains.push({x:villain.x,y:villain.y,width:villain.width,height:villain.height,sprite:villain.sprite,speedX:50,speedY:1});
         }
     }
 
@@ -266,20 +275,21 @@ function updateBullet()
     if(isOutOfBoundry(bulletObj))
         resetBullet();
     else {
-        var isCollided=false;
+        var isCollidedWithVillain=false;
+        var isCollidedWithPlayer=false;
         for(i=0;i<villainInRow;i++) {
             if (isColliding(bulletObj, villains[i])) {
-                isCollided=true;
-                blastedVillain=villains[i];
+                isCollidedWithVillain=true;
+                blastedVillain=i;
                 break;
             }
         }
-        if(!isCollided)
+        if(!isCollidedWithVillain)
         {
             if(isColliding(bulletObj,other))
-                isCollided=true;
+                isCollidedWithPlayer=true;
         }
-        if(!isCollided)
+        if(!isCollidedWithPlayer && !isCollidedWithVillain)
         {
             // not collided with opponent
                 ctx.drawImage(bulletImg, bulletObj.x, bulletObj.y);
@@ -299,7 +309,10 @@ function updateBullet()
             // refresh and show blast
             var exaudio = document.getElementById("explosionAudio");
             exaudio.play();
-            directionGlobal = "blast";
+            if(isCollidedWithPlayer)
+                directionGlobal = "blastPlayer";
+            else if(isCollidedWithVillain)
+                directionGlobal = "blastVillain";
             //timer = setTimeout(function () {updateFrame("blast")}, 150);
         }
 
@@ -341,6 +354,7 @@ function showBlast(diedPlayer)
     blastImg.onload = function () {
         blast.x=diedPlayer.x+(diedPlayer.width/2)-(blast.width/2);
         blast.y=diedPlayer.y+(diedPlayer.height/2)-(blast.height/2);
+        //alert("blast drawing");
         ctx.drawImage(blastImg,blast.x,blast.y,blast.width,blast.height);
         if(blastCount==5) // last blasting image showing
         {
@@ -349,12 +363,20 @@ function showBlast(diedPlayer)
         }
         if(blastCount>=6) {
             //clearTimeout(timer);
-            ctx.putImageData(imgData, diedPlayer.x,diedPlayer.y);
+            //ctx.putImageData(imgData, diedPlayer.x,diedPlayer.y);
             blastCount=0;
             directionGlobal="";
+            // to kill time after blast
+
+
+
+
+            blastedVillain=-1;
         }
     }
 }
+
+
 
 function drawPlayer(playerImg,x,y,isLoaded)
 {
