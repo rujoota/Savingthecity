@@ -39,6 +39,7 @@
     });*/
 
     var bgImage,p1Image,p2Image,bulletImg,villainImg;
+    var currentUser;
     var blastImgs=new Array();
     $( document ).ready(function() {
         initGameSprites();
@@ -65,6 +66,9 @@
         <% @explosionArr.each do |explosion| %>
             blastImgs.push("<%= explosion %>");
         <% end %>
+
+
+
     }
 </script>
 

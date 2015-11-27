@@ -293,10 +293,6 @@ function updateBullet()
         {
             // not collided with opponent
                 ctx.drawImage(bulletImg, bulletObj.x, bulletObj.y);
-
-                oldx = bulletObj.x;
-                oldy = bulletObj.y;
-
                 delta++;
                 bulletObj.x = (me.width / 2) + me.x + delta * bulletObj.speed*bulletObj.direction;
                 bulletObj.y = me.y + (me.height / 2);
