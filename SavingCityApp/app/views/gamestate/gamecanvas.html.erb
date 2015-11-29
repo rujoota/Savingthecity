@@ -28,7 +28,7 @@
             var memCount=0;
             members.each(function(member) {
                 currentPlayerNo=member.info.usernumber;
-                setupPlayer('',currentPlayerNo);
+                setupPlayer(member.id,currentPlayerNo);
                 memCount++;
             });
             if(memCount==2) // when second player joins
@@ -46,7 +46,9 @@
         // this will be triggered to the first player who has subscribed to pusher
         presenceChannel.bind('pusher:member_added', function(member) {
             if(member.info.usernumber==2) {
-                setupPlayer('',1);
+                if(me.name!='')
+                    me.name=me.name.split('#')[1];
+                setupPlayer(me.name,1);
                 subscribeToOthers();
                 initGameSprites();
                 mymain();
@@ -70,8 +72,8 @@
         });
 
         managePusher();
-
     });
+    var playerFiring;
     function subscribeToOthers()
     {
         // actually used when opponent presses a key
@@ -89,9 +91,10 @@
 
             updatePlayer("down",other);
         });
-        gameChannel.bind('enter-key', function (data) {
+        presenceChannel.bind('client-enter-key', function (data) {
             //updatePlayer("enter");
-            directionGlobal="enter";
+            other.isfiring=true;
+            //updateBullet(other)
         });
     }
     function initGameSprites()

@@ -2,10 +2,12 @@ var ctx,canvas;
 var windowSize={width:1024,height:600};
 var playerSize={width:100,height:150};
 var bulletObj={x:0,y:0,width:9,height:20,speed:30,direction:1};
-var keyPressed={left:false,right:false,up:false,down:false,enter:false};
 
-var player1={x:0,y:windowSize.height-playerSize.height-10,speed:20,width:playerSize.width,height:playerSize.height,sprite:''};
-var player2={x:windowSize.width-playerSize.width-10,y:windowSize.height-playerSize.height-10,speed:10,width:playerSize.width,height:playerSize.height,sprite:''};
+var player1={x:0,y:windowSize.height-playerSize.height-10,speed:20,width:playerSize.width,
+    height:playerSize.height,sprite:'',mybullet:'',isfiring:false,name:'',isHitByBullet:false,opponent:''};
+var player2={x:windowSize.width-playerSize.width-10,y:windowSize.height-playerSize.height-10,
+    speed:10,width:playerSize.width,height:playerSize.height,sprite:'',mybullet:'',isfiring:false,name:'',
+    isHitByBullet:false,opponent:''};
 
 var blast={x:0,y:0,width:60,height:60};
 var loadingDone=false,vLoaded=false;
@@ -37,42 +39,35 @@ function setupSprite()
     {
         me.sprite = p1Image;
         other.sprite = p2Image;
-        bulletObj.direction = 1;
+        //bulletObj.direction = 1;
     }
     else
     {
         me.sprite = p2Image;
         other.sprite = p1Image;
-        bulletObj.direction = -1;
+        //bulletObj.direction = -1;
     }
     villain.sprite = villainImg;
 }
 // setting up player1 and player2
 function setupPlayer(playerid,playernumber)
 {
-    //alert(playernumber);
     if(!(playernumber==0 || playernumber>2))
     {
         if (playernumber == 1) {
             //alert('I am p1');
             me = player1;
+            me.name='player1#'+playerid;
             other = player2;
-            /*me.sprite = p1Image;
-            other.sprite = p2Image;
-            bulletObj.direction = 1;*/
         }
         else  if (playernumber == 2)  {
-            //alert('I am p2');
             me = player2;
+            me.name='player2#'+playerid;
             other = player1;
-            /*me.sprite = p2Image;
-            other.sprite = p1Image;
-            bulletObj.direction = -1;*/
         }
-        //villain.sprite = villainImg;
+        me.opponent=other;
+        other.opponent=me;
     }
-    //else
-        //alert('please wait for other players to join');
 }
 
 // loading all the images for sprites
@@ -92,41 +87,57 @@ function init()
     villainImg.onload=function(){
         vLoaded=true;
     }
-    bulletObj.x=me.x+(me.width/2);
-    bulletObj.y=me.y+(me.height/2);
+
+    me.mybullet={x:0,y:0,width:9,height:20,speed:30,direction:1};
+    me.mybullet.x=me.x+(me.width/2);
+    me.mybullet.y=me.y+(me.height/2);
+
+    other.mybullet={x:0,y:0,width:9,height:20,speed:30,direction:-1};
+    other.mybullet.x=other.x+(other.width/2);
+    other.mybullet.y=other.y+(other.height/2);
+
+    if(me==player1) {
+        me.mybullet.direction = 1;
+        other.mybullet.direction = -1;
+    }
+    else if(me==player2)
+    {
+        me.mybullet.direction=-1;
+        other.mybullet.direction=1;
+    }
+
     setTimeout(drawFrame, 1000);
 }
 
 $(document).bind('keydown', function(e)  {
     var code = (e.keyCode ? e.keyCode : e.which);
-    keyPressed.left=false;
-    keyPressed.right=false;
-    keyPressed.down=false;
-    keyPressed.up=false;
-    keyPressed.enter=false;
+
     e.stopImmediatePropagation();
     switch(code) {
         case 37://left key
 
             directionGlobal="left";
-            presenceChannel.trigger("client-left-key", {x:'a'});
+            presenceChannel.trigger("client-left-key", {x:'left'});
             //$.ajax({url: "/gamestate/move_image_left" });
             break;
         case 39://right key
             directionGlobal="right";
-            presenceChannel.trigger("client-right-key", {x:'a'});
+            presenceChannel.trigger("client-right-key", {x:'right'});
             break;
         case 40://down key
             directionGlobal="down";
-            presenceChannel.trigger("client-down-key", {x:'a'});
+            presenceChannel.trigger("client-down-key", {x:'down'});
             break;
         case 38://up key
             directionGlobal="up";
-            presenceChannel.trigger("client-up-key", {x:'a'});
+            presenceChannel.trigger("client-up-key", {x:'up'});
             break;
         case 13://enter key
-            $.ajax("/gamestate/show_bullet");
-            keyPressed.enter=true;
+
+            //directionGlobal="enter";
+            me.isfiring=true;
+            presenceChannel.trigger("client-enter-key", {x:'enter'});
+            //$.ajax("/gamestate/show_bullet");
             break;
     }
 
@@ -205,14 +216,13 @@ function displayHealth()
 }
 function displayScore()
 {
-    ctx.fillText("score: "+scoreP1.score,scoreP1.x,scoreP1.y);
+    ctx.fillText("name:"+me.name+" score: "+scoreP1.score,scoreP1.x,scoreP1.y);
     ctx.fillText("score: "+scoreP2.score,scoreP2.x,scoreP2.y);
 }
 var timeEnd;
-var bulletBg;
+
 function updateFrame(time)
 {
-
     timeStart=Date.now();
     diff=timeStart-timeEnd;
     //alert("timestart="+timeStart+" timeEnd="+timeEnd+" diff="+diff);
@@ -235,26 +245,35 @@ function updateFrame(time)
         updateVillain();
         // save original background to show when a player dies
         imgData = ctx.getImageData(other.x, other.y, other.width, other.height);
-        ctx.drawImage(me.sprite, me.x, me.y,me.width,me.height);
+        if(me.isHitByBullet)
+            showBlast(me);
+        else
+            ctx.drawImage(me.sprite, me.x, me.y,me.width,me.height);
 
         // if blasted
-        if(directionGlobal=="blastPlayer") {
-
-            //timer=setTimeout(function(){updateFrame("blast")},150);
+        /*if(directionGlobal=="blastPlayer")
+        {
             showBlast(other);
+        }*/
 
-        }
+        if(me.opponent.isHitByBullet)
+            showBlast(me.opponent);
         else
-            ctx.drawImage(other.sprite, other.x, other.y,other.width,other.height);
+            ctx.drawImage(me.opponent.sprite, me.opponent.x, me.opponent.y,me.opponent.width,me.opponent.height);
         if(directionGlobal=="blastVillain")
         {
             showBlast(villains[blastedVillain]);
         }
-        if(directionGlobal=="enter")
+        /*if(directionGlobal=="enter")
         {
             //setTimeout(function(){updateFrame("enter")}, 500);
-            bulletBg = ctx.getImageData(bulletObj.x, bulletObj.y, bulletObj.width, bulletObj.height);
-            updateBullet();
+            //bulletBg = ctx.getImageData(bulletObj.x, bulletObj.y, bulletObj.width, bulletObj.height);
+            updateBullet(me);
+        }*/
+        if(me.isfiring)
+            updateBullet(me);
+        if(other.isfiring) {
+            updateBullet(other);
         }
         timeEnd=Date.now();
         setTimeout(function(){updateFrame(timeEnd)}, 100);
@@ -283,11 +302,24 @@ function updateVillain()
 }
 function displayVillain()
 {
+    var villainSpeeds=new Array();
+    /*villainSpeeds[0]=7;
+    villainSpeeds[1]=5;
+    villainSpeeds[2]=9;
+    villainSpeeds[3]=5;
+    villainSpeeds[4]=10;
+    villainSpeeds[5]=6;*/
+    villainSpeeds[0]=2;
+     villainSpeeds[1]=3;
+     villainSpeeds[2]=1;
+     villainSpeeds[3]=2;
+     villainSpeeds[4]=1;
+     villainSpeeds[5]=4;
     for(i=0;i<villainInRow;i++) {
         villains.push({x:villain.x,y:villain.y,width:villain.width,height:villain.height,sprite:villain.sprite,speedX:50,speedY:1});
         if(i>0)
             villains[i].x=villains[i-1].x+villains[i].width+villains[i].speedX;
-        villains[i].speedY=getRandomArbitrary(5,20);
+        villains[i].speedY=villainSpeeds[i];
         ctx.drawImage(villains[i].sprite, villains[i].x, villains[i].y, villains[i].width, villains[i].height);
     }
 
@@ -296,17 +328,16 @@ function getRandomArbitrary(min, max) {
     return Math.random() * (max - min) + min;
 }
 var blastedVillain;
-function updateBullet()
+function updateBullet(player)
 {
-    var oldx=bulletObj.x,oldy=bulletObj.y;
     // bullet out of canvas border
-    if(isOutOfBoundry(bulletObj))
-        resetBullet();
+    if(isOutOfBoundry(player.mybullet))
+        resetBullet(player);
     else {
         var isCollidedWithVillain=false;
         var isCollidedWithPlayer=false;
         for(i=0;i<villainInRow;i++) {
-            if (isColliding(bulletObj, villains[i])) {
+            if (isColliding(player.mybullet, villains[i])) {
                 isCollidedWithVillain=true;
                 blastedVillain=i;
                 break;
@@ -314,22 +345,37 @@ function updateBullet()
         }
         if(!isCollidedWithVillain)
         {
-            if(isColliding(bulletObj,other))
+            /*if(player==other && isColliding(player.mybullet, me))
+            { //i.e. we are updating opponent's bullet
+
+                isCollidedWithPlayer = true;
+                me.isHitByBullet=true;
+            }
+            else if(player==me && isColliding(player.mybullet, other)) // if my bullet collided with opponent
+            {
+                isCollidedWithPlayer = true;
+                other.isHitByBullet=true;
+            }*/
+            if(isColliding(player.mybullet,player.opponent))
+            {
                 isCollidedWithPlayer=true;
+                player.opponent.isHitByBullet=true;
+            }
         }
         if(!isCollidedWithPlayer && !isCollidedWithVillain)
         {
             // not collided with opponent
-                ctx.drawImage(bulletImg, bulletObj.x, bulletObj.y);
+                ctx.drawImage(bulletImg, player.mybullet.x, player.mybullet.y);
                 delta++;
-                bulletObj.x = (me.width / 2) + me.x + delta * bulletObj.speed*bulletObj.direction;
-                bulletObj.y = me.y + (me.height / 2);
-                //bulletObj.x = (me.width / 2) + me.x;
-                //bulletObj.y = (me.height / 2) + me.y - delta * bulletObj.speed;
+                /*playerFiring.mybullet.x = (me.width / 2) + me.x + delta * bulletObj.speed*playerFiring.direction;
+                playerFiring.mybullet.y = me.y + (me.height / 2);   */
+            player.mybullet.x = (player.width / 2) + player.x +
+                                delta * player.mybullet.speed*player.mybullet.direction;
+            player.mybullet.y = player.y + (player.height / 2);
 
         }
         else { // when collision occurs
-            resetBullet();
+            resetBullet(player);
             // refresh and show blast
             var exaudio = document.getElementById("explosionAudio");
             exaudio.play();
@@ -363,10 +409,11 @@ function updatePlayer(direction,player)
     }
 
 }
-function resetBullet()
+function resetBullet(player)
 {
-    bulletObj.x = (me.width / 2) + me.x;
-    bulletObj.y=me.y+(me.height/2);
+    player.mybullet.x = (player.width / 2) + player.x;
+    player.mybullet.y=player.y+(player.height/2);
+    player.isfiring=false;
     cancelAnimationFrame(animFrame);
     delta=0;
 }
@@ -378,7 +425,7 @@ function showBlast(diedPlayer)
     blastImg.onload = function () {
         blast.x=diedPlayer.x+(diedPlayer.width/2)-(blast.width/2);
         blast.y=diedPlayer.y+(diedPlayer.height/2)-(blast.height/2);
-        //alert("blast drawing");
+
         ctx.drawImage(blastImg,blast.x,blast.y,blast.width,blast.height);
         if(blastCount==5) // last blasting image showing
         {
@@ -390,11 +437,9 @@ function showBlast(diedPlayer)
             //ctx.putImageData(imgData, diedPlayer.x,diedPlayer.y);
             blastCount=0;
             directionGlobal="";
+            me.isHitByBullet=false;
+            me.opponent.isHitByBullet=false;
             // to kill time after blast
-
-
-
-
             blastedVillain=-1;
         }
     }
