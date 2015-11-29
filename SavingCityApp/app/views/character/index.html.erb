@@ -7,7 +7,7 @@
 	}
 </script>
 <h1>List of characters</h1>
-<%= form_tag("gamestate/index", method: "post") do %>
+<%= form_tag("gamestate/gamecanvas", method: "post") do %>
 	<% @chars.each do |char| %>
 		<a href="#" onclick=setId(<%= char.id %>)>
 		<img src=<%= image_path(char.character_image) %>  />

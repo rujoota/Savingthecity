@@ -6,45 +6,94 @@
             window.console.log(message);
         }
     };
+    var currentPlayerNo=0;
+    var currentUser='';
+    var userJoinedAt='';
+    var arePlayersReady=false;
+    var pusher;
 
-    var pusher = new Pusher('84f09cdc1b38da624919', {
-        encrypted: true
-    });
-    var directionGlobal;
-    var keychannel = pusher.subscribe('key_pressed');
-    keychannel.bind('left-key', function (data) {
-        directionGlobal="left";
-        //updatePlayer("left");
-    });
-    keychannel.bind('right-key', function (data) {
-        directionGlobal="right";
-        //updatePlayer("right");
-    });
-    keychannel.bind('up-key', function (data) {
-        directionGlobal="up";
-        //updatePlayer("up");
-    });
-    keychannel.bind('down-key', function (data) {
-        directionGlobal="down";
-        //updatePlayer("down");
-    });
-    keychannel.bind('enter-key', function (data) {
-        directionGlobal="enter";
-        //updatePlayer("enter");
-    });
-
-    /*var playerchannel = pusher.subscribe('player_channel');
-    playerchannel.bind('player_joined', function (data) {
-        setupPlayer('rshah1@mail.sfsu.edu',1);
-    });*/
+    var directionGlobal,gameChannel;
 
     var bgImage,p1Image,p2Image,bulletImg,villainImg;
     var currentUser;
     var blastImgs=new Array();
+
+    function managePusher()
+    {
+        gameChannel = pusher.subscribe('game_events');
+        presenceChannel = pusher.subscribe('presence-player'); //join the presence-nettuts channel
+
+        presenceChannel.bind('pusher:subscription_succeeded', function(members) {
+
+            var memCount=0;
+            members.each(function(member) {
+                currentPlayerNo=member.info.usernumber;
+                setupPlayer('',currentPlayerNo);
+                memCount++;
+            });
+            if(memCount==2) // when second player joins
+            {
+                subscribeToOthers();
+                initGameSprites();
+                mymain();
+            }
+            else if(memCount==1)
+            {
+                // do nothing, just wait for other player to join
+            }
+        });
+
+        // this will be triggered to the first player who has subscribed to pusher
+        presenceChannel.bind('pusher:member_added', function(member) {
+            if(member.info.usernumber==2) {
+                setupPlayer('',1);
+                subscribeToOthers();
+                initGameSprites();
+                mymain();
+            }
+        });
+
+        presenceChannel.bind('pusher:member_removed', function(member) {
+            //alert('member removed');
+        });
+
+    }
     $( document ).ready(function() {
-        initGameSprites();
-        mymain();
+
+        pusher = new Pusher('84f09cdc1b38da624919', {
+            authEndpoint: '/gamestate/auth',
+            auth: {
+                headers: {
+                    'X-CSRF-Token': '<%= form_authenticity_token %>'
+                }
+            }
+        });
+
+        managePusher();
+
     });
+    function subscribeToOthers()
+    {
+        // actually used when opponent presses a key
+        presenceChannel.bind('client-left-key', function (data) {
+            updatePlayer("left",other);
+        });
+        presenceChannel.bind('client-right-key', function (data) {
+            updatePlayer("right",other);
+        });
+        presenceChannel.bind('client-up-key', function (data) {
+
+            updatePlayer("up",other);
+        });
+        presenceChannel.bind('client-down-key', function (data) {
+
+            updatePlayer("down",other);
+        });
+        gameChannel.bind('enter-key', function (data) {
+            //updatePlayer("enter");
+            directionGlobal="enter";
+        });
+    }
     function initGameSprites()
     {
         // Background image
@@ -66,8 +115,6 @@
         <% @explosionArr.each do |explosion| %>
             blastImgs.push("<%= explosion %>");
         <% end %>
-
-
 
     }
 </script>

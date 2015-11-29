@@ -33,7 +33,10 @@ Rails.application.routes.draw do
 
   get 'gamestate/show'
   get 'gamestate/game'
-  get 'gamestate/gamecanvas'
+  post 'gamestate/gamecanvas'
+  post 'gamestate/player_join'
+  post 'gamestate/auth'
+
   resources :users
   resources :character
   resources :gamestate

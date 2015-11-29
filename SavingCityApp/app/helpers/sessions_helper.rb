@@ -41,10 +41,18 @@ module SessionsHelper
     cookies.delete(:remember_token)
   end
 
+  def delete_existing_gamestate(theuser)
+    existing_gamestate=Gamestate.find_by(user: theuser)
+    if existing_gamestate!=nil
+      existing_gamestate.destroy
+    end
+  end
+
   # Logs out the current user.
   def log_out
     forget(current_user)
     session.delete(:user_id)
+    delete_existing_gamestate(@current_user)
     @current_user = nil
   end
 

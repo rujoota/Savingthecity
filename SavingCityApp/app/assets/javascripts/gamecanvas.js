@@ -14,6 +14,7 @@ var me,other;
 var initialVillainX=100;
 var initialVillainY=60;
 var villain={x:initialVillainX,y:initialVillainY,width:80,height:100,sprite:""};
+
 // initializing canvas
 function mymain()
 {
@@ -25,29 +26,53 @@ function mymain()
     var mydiv=document.getElementById('divcanvas');
     mydiv.appendChild(canvas);
     //setTimeout(drawFrame, 1000);
-    setupPlayer('',2);
+
+    //setupPlayer(currentUser,currentPlayerNo);
+    setupSprite();
     init();
 }
-
-// setting up player1 and player2
-function setupPlayer(playerid,playernumber)
+function setupSprite()
 {
-    if(playernumber==1) {
-        me = player1;
-        other=player2;
-        me.sprite=p1Image;
-        other.sprite=p2Image;
-        bulletObj.direction=1;
+    if(me==player1)
+    {
+        me.sprite = p1Image;
+        other.sprite = p2Image;
+        bulletObj.direction = 1;
     }
     else
     {
-        me=player2;
-        other=player1;
-        me.sprite=p2Image;
-        other.sprite=p1Image;
-        bulletObj.direction=-1;
+        me.sprite = p2Image;
+        other.sprite = p1Image;
+        bulletObj.direction = -1;
     }
-    villain.sprite=villainImg;
+    villain.sprite = villainImg;
+}
+// setting up player1 and player2
+function setupPlayer(playerid,playernumber)
+{
+    //alert(playernumber);
+    if(!(playernumber==0 || playernumber>2))
+    {
+        if (playernumber == 1) {
+            //alert('I am p1');
+            me = player1;
+            other = player2;
+            /*me.sprite = p1Image;
+            other.sprite = p2Image;
+            bulletObj.direction = 1;*/
+        }
+        else  if (playernumber == 2)  {
+            //alert('I am p2');
+            me = player2;
+            other = player1;
+            /*me.sprite = p2Image;
+            other.sprite = p1Image;
+            bulletObj.direction = -1;*/
+        }
+        //villain.sprite = villainImg;
+    }
+    //else
+        //alert('please wait for other players to join');
 }
 
 // loading all the images for sprites
@@ -82,20 +107,22 @@ $(document).bind('keydown', function(e)  {
     e.stopImmediatePropagation();
     switch(code) {
         case 37://left key
-            keyPressed.left=true;
-            $.ajax({url: "/gamestate/move_image_left" });
+
+            directionGlobal="left";
+            presenceChannel.trigger("client-left-key", {x:'a'});
+            //$.ajax({url: "/gamestate/move_image_left" });
             break;
         case 39://right key
-            keyPressed.right=true;
-            $.ajax({url: "/gamestate/move_image_right" });
+            directionGlobal="right";
+            presenceChannel.trigger("client-right-key", {x:'a'});
             break;
         case 40://down key
-            keyPressed.down=true;
-            $.ajax({url: "/gamestate/move_image_down" });
+            directionGlobal="down";
+            presenceChannel.trigger("client-down-key", {x:'a'});
             break;
         case 38://up key
-            $.ajax({url: "/gamestate/move_image_up" });
-            keyPressed.up=true;
+            directionGlobal="up";
+            presenceChannel.trigger("client-up-key", {x:'a'});
             break;
         case 13://enter key
             $.ajax("/gamestate/show_bullet");
@@ -185,6 +212,7 @@ var timeEnd;
 var bulletBg;
 function updateFrame(time)
 {
+
     timeStart=Date.now();
     diff=timeStart-timeEnd;
     //alert("timestart="+timeStart+" timeEnd="+timeEnd+" diff="+diff);

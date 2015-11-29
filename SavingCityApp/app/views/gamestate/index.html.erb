@@ -26,5 +26,12 @@
 <% end %>
 
 <div id="itemFromPusher" style="width:200px;height:200px"></div>
-<%= link_to "Enter game", action: "gamecanvas" %>
+
+<%= form_tag("/gamestate/player_join") do %>
+    <%= submit_tag("test player joined") %>
+<% end %>
+
+<%= form_tag("/gamestate/gamecanvas") do %>
+    <%= submit_tag("Enter game") %>
+<% end %>
 
