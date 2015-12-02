@@ -17,7 +17,7 @@
     var bgImage,p1Image,p2Image,bulletImg,villainImg;
     var currentUser;
     var blastImgs=new Array();
-
+    var blastedVillain=-1;
     function managePusher()
     {
         gameChannel = pusher.subscribe('game_events');
@@ -88,13 +88,18 @@
             updatePlayer("up",other);
         });
         presenceChannel.bind('client-down-key', function (data) {
-
             updatePlayer("down",other);
         });
         presenceChannel.bind('client-enter-key', function (data) {
-            //updatePlayer("enter");
             other.isfiring=true;
-            //updateBullet(other)
+        });
+        presenceChannel.bind('client-villain-died', function (data) {
+            if(data.index!=undefined) {
+                blastedVillain=data.index;
+                resetBullet(me.opponent);
+                villains[blastedVillain].visible=false;
+                blasting(villains[blastedVillain]);
+            }
         });
     }
     function initGameSprites()

@@ -15,7 +15,7 @@ var drawFrameTimeout;
 var me,other;
 var initialVillainX=100;
 var initialVillainY=60;
-var villain={x:initialVillainX,y:initialVillainY,width:80,height:100,sprite:""};
+var villain={x:initialVillainX,y:initialVillainY,width:80,height:100,sprite:"",visible:true};
 
 // initializing canvas
 function mymain()
@@ -237,11 +237,6 @@ function updateFrame(time)
         // score and health
         displayScore();
         displayHealth();
-
-        /*if(diff>20) {
-            //alert(diff);
-            updateVillain();
-        }*/
         updateVillain();
         // save original background to show when a player dies
         imgData = ctx.getImageData(other.x, other.y, other.width, other.height);
@@ -251,25 +246,12 @@ function updateFrame(time)
             ctx.drawImage(me.sprite, me.x, me.y,me.width,me.height);
 
         // if blasted
-        /*if(directionGlobal=="blastPlayer")
-        {
-            showBlast(other);
-        }*/
 
         if(me.opponent.isHitByBullet)
             showBlast(me.opponent);
         else
             ctx.drawImage(me.opponent.sprite, me.opponent.x, me.opponent.y,me.opponent.width,me.opponent.height);
-        if(directionGlobal=="blastVillain")
-        {
-            showBlast(villains[blastedVillain]);
-        }
-        /*if(directionGlobal=="enter")
-        {
-            //setTimeout(function(){updateFrame("enter")}, 500);
-            //bulletBg = ctx.getImageData(bulletObj.x, bulletObj.y, bulletObj.width, bulletObj.height);
-            updateBullet(me);
-        }*/
+
         if(me.isfiring)
             updateBullet(me);
         if(other.isfiring) {
@@ -284,7 +266,7 @@ var villainInRow=6;
 function updateVillain()
 {
     for(i=0;i<villains.length;i++) {
-        if(i!=blastedVillain) {
+        if(villains[i].visible==true) {
             villains[i].y += villains[i].speedY;
             //villains[i].y+=1;
             if (villains[i].y + villains[i].height > canvas.height) {
@@ -294,8 +276,7 @@ function updateVillain()
         }
         else
         {
-            //villains.splice(i,1);
-            //villains.push({x:villain.x,y:villain.y,width:villain.width,height:villain.height,sprite:villain.sprite,speedX:50,speedY:1});
+            villains.splice(i,1); // remove that villain
         }
     }
 
@@ -309,25 +290,24 @@ function displayVillain()
     villainSpeeds[3]=5;
     villainSpeeds[4]=10;
     villainSpeeds[5]=6;*/
-    villainSpeeds[0]=2;
-     villainSpeeds[1]=3;
+    villainSpeeds[0]=1;
+     villainSpeeds[1]=2;
      villainSpeeds[2]=1;
      villainSpeeds[3]=2;
      villainSpeeds[4]=1;
-     villainSpeeds[5]=4;
+     villainSpeeds[5]=2;
     for(i=0;i<villainInRow;i++) {
-        villains.push({x:villain.x,y:villain.y,width:villain.width,height:villain.height,sprite:villain.sprite,speedX:50,speedY:1});
+        villains.push({x:villain.x,y:villain.y,width:villain.width,height:villain.height,sprite:villain.sprite,speedX:50,speedY:1,visible:true});
         if(i>0)
             villains[i].x=villains[i-1].x+villains[i].width+villains[i].speedX;
         villains[i].speedY=villainSpeeds[i];
         ctx.drawImage(villains[i].sprite, villains[i].x, villains[i].y, villains[i].width, villains[i].height);
     }
-
 }
 function getRandomArbitrary(min, max) {
     return Math.random() * (max - min) + min;
 }
-var blastedVillain;
+
 function updateBullet(player)
 {
     // bullet out of canvas border
@@ -336,26 +316,19 @@ function updateBullet(player)
     else {
         var isCollidedWithVillain=false;
         var isCollidedWithPlayer=false;
-        for(i=0;i<villainInRow;i++) {
-            if (isColliding(player.mybullet, villains[i])) {
-                isCollidedWithVillain=true;
-                blastedVillain=i;
-                break;
+        for(i=0;i<villains.length;i++) {
+            if(player==me) {
+                if (isColliding(player.mybullet, villains[i]) && villains[i].visible == true) {
+                    isCollidedWithVillain = true;
+                    villains[i].visible = false;
+                    blastedVillain = i;
+                    presenceChannel.trigger("client-villain-died", {index: i});
+                    break;
+                }
             }
         }
         if(!isCollidedWithVillain)
         {
-            /*if(player==other && isColliding(player.mybullet, me))
-            { //i.e. we are updating opponent's bullet
-
-                isCollidedWithPlayer = true;
-                me.isHitByBullet=true;
-            }
-            else if(player==me && isColliding(player.mybullet, other)) // if my bullet collided with opponent
-            {
-                isCollidedWithPlayer = true;
-                other.isHitByBullet=true;
-            }*/
             if(isColliding(player.mybullet,player.opponent))
             {
                 isCollidedWithPlayer=true;
@@ -367,27 +340,32 @@ function updateBullet(player)
             // not collided with opponent
                 ctx.drawImage(bulletImg, player.mybullet.x, player.mybullet.y);
                 delta++;
-                /*playerFiring.mybullet.x = (me.width / 2) + me.x + delta * bulletObj.speed*playerFiring.direction;
-                playerFiring.mybullet.y = me.y + (me.height / 2);   */
-            player.mybullet.x = (player.width / 2) + player.x +
-                                delta * player.mybullet.speed*player.mybullet.direction;
-            player.mybullet.y = player.y + (player.height / 2);
+                player.mybullet.x = (player.width / 2) + player.x +
+                                    delta * player.mybullet.speed*player.mybullet.direction;
+                player.mybullet.y = player.y + (player.height / 2);
 
         }
         else { // when collision occurs
+            if(blastedVillain!=-1) {
+                villains[blastedVillain].visible=false;
+                blasting(villains[blastedVillain]);
+                blastedVillain=-1;
+            }
+            else if(isCollidedWithPlayer) {
+                blasting(player);
+            }
             resetBullet(player);
-            // refresh and show blast
-            var exaudio = document.getElementById("explosionAudio");
-            exaudio.play();
-            if(isCollidedWithPlayer)
-                directionGlobal = "blastPlayer";
-            else if(isCollidedWithVillain)
-                directionGlobal = "blastVillain";
-            //timer = setTimeout(function () {updateFrame("blast")}, 150);
         }
 
     }
 
+}
+function blasting(item)
+{
+    // refresh and show blast
+    var exaudio = document.getElementById("explosionAudio");
+    exaudio.play();
+    showBlast(item);
 }
 function updatePlayer(direction,player)
 {
@@ -437,9 +415,9 @@ function showBlast(diedPlayer)
             //ctx.putImageData(imgData, diedPlayer.x,diedPlayer.y);
             blastCount=0;
             directionGlobal="";
+
             me.isHitByBullet=false;
             me.opponent.isHitByBullet=false;
-            // to kill time after blast
             blastedVillain=-1;
         }
     }
