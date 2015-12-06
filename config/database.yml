@@ -7,7 +7,7 @@
 default: &default
   adapter: postgresql
   encoding: unicode
-  username: pguser
+  username: user
   password: abcd@123
   host: localhost
     # For details on connection pooling, see rails configuration guide
@@ -16,7 +16,11 @@ default: &default
 
 development:
   <<: *default
-  database: db/savingthecity_dev
+  #database: db/savingthecity_dev
+  adapter: postgresql
+  host: localhost
+  username: user
+  database: app-dev
 
 # Warning: The database defined as "test" will be erased and
 # re-generated from your development database when you run "rake".
