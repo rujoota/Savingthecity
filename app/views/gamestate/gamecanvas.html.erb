@@ -26,10 +26,12 @@
         presenceChannel.bind('pusher:subscription_succeeded', function(members) {
 
             var memCount=0;
+            var playerId;
             members.each(function(member) {
                 currentPlayerNo=member.info.usernumber;
                 setupPlayer(member.id,currentPlayerNo);
                 memCount++;
+                playerId=member.id;
             });
             if(memCount==2) // when second player joins
             {
@@ -40,6 +42,7 @@
             else if(memCount==1)
             {
                 // do nothing, just wait for other player to join
+                //me.name='player1#'+playerId;
             }
         });
 
@@ -100,6 +103,9 @@
                 villains[blastedVillain].visible=false;
                 blasting(villains[blastedVillain]);
             }
+        });
+        presenceChannel.bind('client-opponent-died', function (data) {
+            me.isHitByBullet=true;
         });
     }
     function initGameSprites()
