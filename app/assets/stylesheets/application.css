@@ -17,6 +17,12 @@
 {
     text-decoration: none;
 }
+.container-fluid-custom
+{
+    padding-left:0px;
+    padding-right: 0px;
+}
+
 #savingthecitylogo
 {
     color:aqua;
