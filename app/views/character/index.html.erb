@@ -5,15 +5,27 @@
 		elem.value=myid;
 		//alert(elem.value);
 	}
+        function changeColor(myid)
+        {
+            elem=document.getElementById('selected_char_id');
+
+        }
 </script>
-<h1>List of characters</h1>
+<div class="inner cover center-block">
+<h1>Select your superhero for the game</h1>
 <%= form_tag("gamestate/gamecanvas", method: "post") do %>
-	<% @chars.each do |char| %>
-		<a href="#" onclick=setId(<%= char.id %>)>
-		<img src=<%= image_path(char.character_image) %>  />
+<div>
+      <% @chars.each do |char| %>
+		<a href="#" onclick="setId('<%= char.id %>')" class="select-char-link" >
+		    <img src='<%= image_path(char.character_image) %>'  class="btn img-portfolio"/>
 		</a>
+        &nbsp;&nbsp;&nbsp;&nbsp;
 	<% end %>
+</div>
 	<%= hidden_field_tag(:selected_char_id, "-1") %>
-	<br/>
-	<%= submit_tag("Save Data") %>
+	<br/><br/>
+	<%= submit_tag "Done, lets play!", class: "center-block btn btn-primary btn-save-character" %>
+      <br/>
+      <br/>
 <% end %>
+</div>

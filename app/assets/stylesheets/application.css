@@ -13,15 +13,49 @@
  *= require_tree .
  *= require_self
  */
-body { padding-bottom: 70px; }
-/*#mainbg
+.select-char-link
 {
-    margin: 0;
-    padding: 0;
-    z-index: -1;
-    position: absolute;
-}*/
+    text-decoration: none;
+}
+#savingthecitylogo
+{
+    color:aqua;
+    font-weight: bold;
+}
+.btn-save-character
+{
+    width:200px;
+}
+body { padding-top:0; }
 
+.navbarmain
+{
+    margin-bottom:0px;
+}
+.generic-div-home
+{
+    padding:20px;
+    color:white;
+}
+.home-cover-heading
+{
+    padding:20px;
+    margin:0;
+}
+.mainbackground
+{
+    /*background-image:url('http://chaine-cambodia.com/wp-content/uploads/2013/12/empty-glass-dining-table-image-8.jpg');*/
+    background-repeat: no-repeat;
+    height:800px;
+    background-position: center center;
+    background-attachment: fixed;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    background-size: cover;
+    -o-background-size: cover;
+    padding:0;
+    margin:0;
+}
 #imgparent
 {
     position:relative;
