@@ -23,23 +23,24 @@
     {
         gameChannel = pusher.subscribe('game_events');
         presenceChannel = pusher.subscribe('presence-player'); //join the presence-nettuts channel
-
+        currentLoggedinUser='<%= current_user.email %>';
         presenceChannel.bind('pusher:subscription_succeeded', function(members) {
-
             var memCount=0;
             var playerId;
-
+            var totalMembers=members.count;
             members.each(function(member) {
                 currentPlayerNo=member.info.usernumber;
                 setupPlayer(member.id,currentPlayerNo);
-                if(memCount==0)
+                if(totalMembers==1)
                     p1Sprite=member.info.charimg;
-                if(memCount==1)
-                    p2Sprite=member.info.charimg;
+                if(totalMembers==2) {
+                    if(member.id==currentLoggedinUser)
+                         p2Sprite = member.info.charimg;
+                    else
+                         p1Sprite = member.info.charimg;
+                }
                 memCount++;
                 playerId=member.id;
-
-
             });
             if(memCount==2) // when second player joins
             {
@@ -49,6 +50,7 @@
             }
             else if(memCount==1)
             {
+
                 // do nothing, just wait for other player to join
                 //me.name='player1#'+playerId;
             }
@@ -57,8 +59,12 @@
         // this will be triggered to the first player who has subscribed to pusher
         presenceChannel.bind('pusher:member_added', function(member) {
             if(member.info.usernumber==2) {
-                if(me.name!='')
-                    me.name=me.name.split('#')[1];
+                /*if(me.name!='')
+                    me.name=me.name.split('#')[1];*/
+                if(currentLoggedinUser==undefined)
+                    currentLoggedinUser='<%= current_user.email %>';
+                me.name=currentLoggedinUser;
+                p2Sprite=member.info.charimg;
                 setupPlayer(me.name,1);
                 subscribeToOthers();
                 initGameSprites();
@@ -68,7 +74,8 @@
         });
 
         presenceChannel.bind('pusher:member_removed', function(member) {
-            //alert('member removed');
+            me.myhealth.health=0;
+            me.opponent.myhealth.health=0;
         });
 
     }
@@ -126,10 +133,8 @@
         p1Image = document.createElement('img');
         p1Image.src = p1Sprite;
 
-
         p2Image = document.createElement('img');
         p2Image.src = p2Sprite;
-
 
         bulletImg=document.createElement('img');
         bulletImg.src="<%= image_path("bulletsmall.gif") %>";
@@ -140,7 +145,6 @@
         <% @explosionArr.each do |explosion| %>
             blastImgs.push("<%= explosion %>");
         <% end %>
-
     }
 </script>
 

@@ -24,7 +24,7 @@ var me,other;
 var initialVillainX=100;
 var initialVillainY=60;
 var villain={x:initialVillainX,y:initialVillainY,width:80,height:100,sprite:"",visible:true};
-
+var p1Loaded=false,p2Loaded=false;
 // initializing canvas
 function mymain()
 {
@@ -70,7 +70,7 @@ function setupPlayer(playerid,playernumber)
         }
         else  if (playernumber == 2)  {
             me = player2;
-            me.name='player2#'+playerid;
+            me.name='player2#'+currentLoggedinUser;
             other = player1;
         }
         me.opponent=other;
@@ -86,10 +86,12 @@ function init()
     }
 
     p1Image.onload = function () {
+
         p1Loaded=true;
     }
 
     p2Image.onload = function () {
+
         p2Loaded=true;
     }
     villainImg.onload=function(){
@@ -156,8 +158,10 @@ function drawFrame()
     if(bgLoaded && p1Loaded && p2Loaded && vLoaded)
     {
         drawBackground();
-        drawPlayer(p1Image,player1.x,player1.y,p1Loaded);
-        drawPlayer(p2Image,player2.x,player2.y,p2Loaded);
+        drawPlayer(me.sprite,me.x,me.y,p1Loaded);
+        drawPlayer(me.opponent.sprite,me.opponent.x,me.opponent.y,p2Loaded);
+        //drawPlayer(p1Image,player1.x,player1.y,p1Loaded);
+        //drawPlayer(p2Image,player2.x,player2.y,p2Loaded);
         loadingDone = true;
         //ctx.font= 'Italic 15px Sans-Serif';
         displayScore();

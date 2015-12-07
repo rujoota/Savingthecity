@@ -89,7 +89,7 @@ class GamestateController < ApplicationController
 
     #user_id = current_user
     charpath=ActionController::Base.helpers.asset_path(@mygamestate.character.character_image)
-    puts charpath
+
     response = Pusher[params[:channel_name]].authenticate(params[:socket_id], {
                                                                                 :user_id => @current_logged_in_user.email,
                                                                                 :user_info => {
@@ -119,7 +119,9 @@ class GamestateController < ApplicationController
     #Pusher.trigger('game_events', 'player-joined', {:message => "data"})
     #Pusher['presence-example'].trigger('add_user', {:message => "data"})
   end
-  def scoreboard
 
+  def scoreboard
+    puts "came to scoreboard"
   end
+
 end
