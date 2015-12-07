@@ -18,6 +18,7 @@
     var currentUser;
     var blastImgs=new Array();
     var blastedVillain=-1;
+    var p1Sprite,p2Sprite;
     function managePusher()
     {
         gameChannel = pusher.subscribe('game_events');
@@ -27,11 +28,18 @@
 
             var memCount=0;
             var playerId;
+
             members.each(function(member) {
                 currentPlayerNo=member.info.usernumber;
                 setupPlayer(member.id,currentPlayerNo);
+                if(memCount==0)
+                    p1Sprite=member.info.charimg;
+                if(memCount==1)
+                    p2Sprite=member.info.charimg;
                 memCount++;
                 playerId=member.id;
+
+
             });
             if(memCount==2) // when second player joins
             {
@@ -56,6 +64,7 @@
                 initGameSprites();
                 mymain();
             }
+
         });
 
         presenceChannel.bind('pusher:member_removed', function(member) {
@@ -115,10 +124,12 @@
         bgImage.src = "<%= asset_path('roading.png') %>";
 
         p1Image = document.createElement('img');
-        p1Image.src = "<%= asset_path('spiderman.png') %>";
+        p1Image.src = p1Sprite;
+
 
         p2Image = document.createElement('img');
-        p2Image.src = "<%= asset_path('batman.gif') %>";
+        p2Image.src = p2Sprite;
+
 
         bulletImg=document.createElement('img');
         bulletImg.src="<%= image_path("bulletsmall.gif") %>";

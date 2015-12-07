@@ -20,6 +20,7 @@ Rails.application.routes.draw do
   get 'gamestate/index'
   post 'gamestate/hello_world'
   get 'gamestate/hello_world'
+  get 'gamestate/scoreboard'
   #post 'gamestate/move_image_left'
   get 'gamestate/move_image_left'
 

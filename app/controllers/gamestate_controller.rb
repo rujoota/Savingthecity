@@ -83,13 +83,18 @@ class GamestateController < ApplicationController
 
   def auth
     @playerCount=Gamestate.where(is_playing: true).count
+
     @current_logged_in_user=current_user
+    @mygamestate=Gamestate.find_by(user: @current_logged_in_user)
+
     #user_id = current_user
+    charpath=ActionController::Base.helpers.asset_path(@mygamestate.character.character_image)
+    puts charpath
     response = Pusher[params[:channel_name]].authenticate(params[:socket_id], {
                                                                                 :user_id => @current_logged_in_user.email,
                                                                                 :user_info => {
                                                                                     :usernumber => @playerCount,
-                                                                                    :game_joined_at => @current_logged_in_user.created_at
+                                                                                    :charimg => charpath
                                                                                 }
                                                                             })
     render :json => response
@@ -114,5 +119,7 @@ class GamestateController < ApplicationController
     #Pusher.trigger('game_events', 'player-joined', {:message => "data"})
     #Pusher['presence-example'].trigger('add_user', {:message => "data"})
   end
+  def scoreboard
 
+  end
 end

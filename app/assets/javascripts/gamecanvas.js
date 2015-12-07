@@ -291,14 +291,15 @@ function updateFrame(time)
         }
         else
         {
+
+            $.ajax({url: "/gamestate/scoreboard",data: {myscore: me.myscore.score,otherscore: me.opponent.myscore.score} });
             //showScoreBoard();
+            //location.href='/gamestate/scoreboard';
+            //Turbolinks.visit('/gamestate/scoreboard',{myscore: me.myscore.score,otherscore: me.opponent.myscore.score});
         }
     }
 }
-function showScoreBoard()
-{
-    location.href='gamecanvas/scores';
-}
+
 var villains=new Array();
 var villainInRow=6;
 function updateVillain()
