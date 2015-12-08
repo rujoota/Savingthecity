@@ -1,0 +1,155 @@
+<script src="http://js.pusher.com/3.0/pusher.min.js"></script>
+<script>
+    // Enable pusher logging - don't include this in production
+    Pusher.log = function(message) {
+        if (window.console && window.console.log) {
+            window.console.log(message);
+        }
+    };
+    var currentPlayerNo=0;
+    var currentUser='';
+    var userJoinedAt='';
+    var arePlayersReady=false;
+    var pusher;
+
+    var directionGlobal,gameChannel;
+
+    var bgImage,p1Image,p2Image,bulletImg,villainImg;
+    var currentUser;
+    var blastImgs=new Array();
+    var blastedVillain=-1;
+    var p1Sprite,p2Sprite;
+    function managePusher()
+    {
+        gameChannel = pusher.subscribe('game_events');
+        presenceChannel = pusher.subscribe('presence-player'); //join the presence-nettuts channel
+        currentLoggedinUser='<%= current_user.email %>';
+        presenceChannel.bind('pusher:subscription_succeeded', function(members) {
+            var memCount=0;
+            var playerId;
+            var totalMembers=members.count;
+            members.each(function(member) {
+                currentPlayerNo=member.info.usernumber;
+                setupPlayer(member.id,currentPlayerNo);
+                if(totalMembers==1)
+                    p1Sprite=member.info.charimg;
+                if(totalMembers==2) {
+                    if(member.id==currentLoggedinUser)
+                         p2Sprite = member.info.charimg;
+                    else
+                         p1Sprite = member.info.charimg;
+                }
+                memCount++;
+                playerId=member.id;
+            });
+            if(memCount==2) // when second player joins
+            {
+                subscribeToOthers();
+                initGameSprites();
+                mymain();
+            }
+            else if(memCount==1)
+            {
+
+                // do nothing, just wait for other player to join
+                //me.name='player1#'+playerId;
+            }
+        });
+
+        // this will be triggered to the first player who has subscribed to pusher
+        presenceChannel.bind('pusher:member_added', function(member) {
+            if(member.info.usernumber==2) {
+                /*if(me.name!='')
+                    me.name=me.name.split('#')[1];*/
+                if(currentLoggedinUser==undefined)
+                    currentLoggedinUser='<%= current_user.email %>';
+                me.name=currentLoggedinUser;
+                p2Sprite=member.info.charimg;
+                setupPlayer(me.name,1);
+                subscribeToOthers();
+                initGameSprites();
+                mymain();
+            }
+
+        });
+
+        presenceChannel.bind('pusher:member_removed', function(member) {
+            me.myhealth.health=0;
+            me.opponent.myhealth.health=0;
+        });
+
+    }
+    $( document ).ready(function() {
+
+        pusher = new Pusher('84f09cdc1b38da624919', {
+            authEndpoint: '/gamestate/auth',
+            auth: {
+                headers: {
+                    'X-CSRF-Token': '<%= form_authenticity_token %>'
+                }
+            }
+        });
+
+        managePusher();
+    });
+    var playerFiring;
+    function subscribeToOthers()
+    {
+        // actually used when opponent presses a key
+        presenceChannel.bind('client-left-key', function (data) {
+            updatePlayer("left",other);
+        });
+        presenceChannel.bind('client-right-key', function (data) {
+            updatePlayer("right",other);
+        });
+        presenceChannel.bind('client-up-key', function (data) {
+
+            updatePlayer("up",other);
+        });
+        presenceChannel.bind('client-down-key', function (data) {
+            updatePlayer("down",other);
+        });
+        presenceChannel.bind('client-enter-key', function (data) {
+            other.isfiring=true;
+        });
+        presenceChannel.bind('client-villain-died', function (data) {
+            if(data.index!=undefined) {
+                blastedVillain=data.index;
+                resetBullet(me.opponent);
+                villains[blastedVillain].visible=false;
+                blasting(villains[blastedVillain]);
+            }
+        });
+        presenceChannel.bind('client-opponent-died', function (data) {
+            me.isHitByBullet=true;
+        });
+    }
+    function initGameSprites()
+    {
+        // Background image
+        bgImage = document.createElement('img');
+        bgImage.src = "<%= asset_path('roading.png') %>";
+
+        p1Image = document.createElement('img');
+        p1Image.src = p1Sprite;
+
+        p2Image = document.createElement('img');
+        p2Image.src = p2Sprite;
+
+        bulletImg=document.createElement('img');
+        bulletImg.src="<%= image_path("bulletsmall.gif") %>";
+
+        villainImg=document.createElement('img');
+        villainImg.src="<%= image_path("supervillain.PNG") %>";
+
+        <% @explosionArr.each do |explosion| %>
+            blastImgs.push("<%= explosion %>");
+        <% end %>
+    }
+</script>
+
+<%= javascript_include_tag "gamecanvas", "data-turbolinks-track" => true %>
+<div id="divcanvas">
+
+</div>
+<audio id="explosionAudio" src=<%= audio_path("snd_explosion2.wav") %> type="audio/mpeg"></audio>

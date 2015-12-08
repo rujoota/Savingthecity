@@ -1,0 +1,43 @@
+<script>
+
+    $(document).ready(function(){
+        $("select").imagepicker({
+            clicked:function(){
+                setId($(this).val());
+                //console.log($(this).val());
+                //console.log($(this).find("option[value='" + $(this).val() + "']").data('img-src'));
+            }
+        });
+        $(".image_picker_image").css("width",250);
+        $(".image_picker_image").css("height",350);
+    });
+    function setId(myid)
+	{
+		elem=document.getElementById('selected_char_id');
+		elem.value=myid;
+
+	}
+
+</script>
+<div class="inner cover center-block">
+<h1>Select your superhero for the game</h1>
+<%= form_tag("gamestate/gamecanvas", method: "post") do %>
+
+
+      <div>
+        <select class="image-picker show-html">
+        <% @chars.each do |char| %>
+
+              <option data-img-src='<%= image_path(char.character_image) %>' value='<%= char.id %>'><%= char.id %></option>
+
+        <% end %>
+        </select>
+      </div>
+
+	<%= hidden_field_tag(:selected_char_id, "-1") %>
+	<br/><br/>
+	<%= submit_tag "Done, lets play!", class: "center-block btn btn-primary btn-save-character" %>
+      <br/>
+      <br/>
+<% end %>
+</div>

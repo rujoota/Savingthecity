@@ -1,0 +1,15 @@
+<div class="inner cover mainbackground">
+  <div class="generic-div-home">
+  <h1 class="cover-heading home-cover-heading">Save the city and be a hero!</h1>
+  <p class="lead">
+    Ugly enemies are attacking our city and this is your chance to be a superhero! You have to prove your strengths and kill the competition.
+  </p>
+  <p class="lead">
+    <% if logged_in? %>
+        <%= link_to "Play", 'character#index', class: "btn btn-lg btn-default"%>
+    <% else %>
+        <%= link_to "Sign up now!", signup_path, class: "btn btn-lg btn-default"%>
+    <% end %>
+  </p>
+  </div>
+</div>
