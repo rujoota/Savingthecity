@@ -1,27 +1,39 @@
 <script>
-	function setId(myid)
+
+    $(document).ready(function(){
+        $("select").imagepicker({
+            clicked:function(){
+                setId($(this).val());
+                //console.log($(this).val());
+                //console.log($(this).find("option[value='" + $(this).val() + "']").data('img-src'));
+            }
+        });
+        $(".image_picker_image").css("width",250);
+        $(".image_picker_image").css("height",350);
+    });
+    function setId(myid)
 	{
 		elem=document.getElementById('selected_char_id');
 		elem.value=myid;
-		//alert(elem.value);
-	}
-        function changeColor(myid)
-        {
-            elem=document.getElementById('selected_char_id');
 
-        }
+	}
+
 </script>
 <div class="inner cover center-block">
 <h1>Select your superhero for the game</h1>
 <%= form_tag("gamestate/gamecanvas", method: "post") do %>
-<div>
-      <% @chars.each do |char| %>
-		<a href="#" onclick="setId('<%= char.id %>')" class="select-char-link" >
-		    <img src='<%= image_path(char.character_image) %>'  class="btn img-portfolio"/>
-		</a>
-        &nbsp;&nbsp;&nbsp;&nbsp;
-	<% end %>
-</div>
+
+
+      <div>
+        <select class="image-picker show-html">
+        <% @chars.each do |char| %>
+
+              <option data-img-src='<%= image_path(char.character_image) %>' value='<%= char.id %>'><%= char.id %></option>
+
+        <% end %>
+        </select>
+      </div>
+
 	<%= hidden_field_tag(:selected_char_id, "-1") %>
 	<br/><br/>
 	<%= submit_tag "Done, lets play!", class: "center-block btn btn-primary btn-save-character" %>
