@@ -38,6 +38,9 @@ function mymain()
     //setTimeout(drawFrame, 1000);
 
     //setupPlayer(currentUser,currentPlayerNo);
+    var mainaudio = document.getElementById("mainAudio");
+    mainaudio.loop=true;
+    mainaudio.play();
     setupSprite();
     init();
 }
@@ -235,14 +238,20 @@ var timeEnd;
 var gameOver=false;
 function isGameOver()
 {
+    var midy=windowSize.height / 2
     if(me.myhealth.health<=0) {
         ctx.font="50px Arial";
+
         ctx.fillText("Game over...", windowSize.width / 2, windowSize.height / 2);
+        ctx.fillText("Your score:"+me.myscore.score, windowSize.width / 2, midy+70);
+        ctx.fillText("Opponent's score:"+me.opponent.myscore.score, windowSize.width / 2, midy+140);
         return true;
     }
     else if(me.opponent.myhealth.health<=0) {
         ctx.font="50px Arial";
         ctx.fillText("Game over...", windowSize.width / 2, windowSize.height / 2);
+        ctx.fillText("Your score:"+me.myscore.score, windowSize.width / 2, midy+70);
+        ctx.fillText("Opponent's score:"+me.opponent.myscore.score, windowSize.width / 2, midy+140);
         return true;
     }
     return false;
@@ -369,6 +378,7 @@ function updateBullet(player)
                     isCollidedWithVillain = true;
                     villains[i].visible = false;
                     blastedVillain = i;
+
                     presenceChannel.trigger("client-villain-died", {index: i});
                     break;
                 }
@@ -399,7 +409,10 @@ function updateBullet(player)
                 blastedVillain=-1;
             }
             else if(isCollidedWithPlayer) {
-                blasting(player);
+                if(player.isHitByBullet)
+                    blasting(player);
+                if(player.opponent.isHitByBullet)
+                    blasting(player.opponent);
             }
             resetBullet(player);
         }
@@ -458,12 +471,12 @@ function showBlast(diedPlayer)
             //healthP2.health--;
             if(diedPlayer==me) {
                 me.myhealth.health--;
-                me.opponent.myscore.score++;
+                me.opponent.myscore.score+=10;
             }
             if(diedPlayer==me.opponent)
             {
                 me.opponent.myhealth.health--;
-                me.myscore.score++;
+                me.myscore.score+=10;
             }
         }
         if(blastCount>=6) {

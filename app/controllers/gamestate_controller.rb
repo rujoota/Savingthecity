@@ -104,10 +104,11 @@ class GamestateController < ApplicationController
     select_my_char
     @playerCount=Gamestate.where(is_playing: true).count
     @current_logged_in_user=current_user
-    #if(@playerCount!=2)
+    #if(@playerCount==2)
+      #flash[:info] = "Please wait for other player to join"
       #respond_to do |format|
        # format.html { render :text => "Please wait for other player to join/quit, only 2 players allowed" }
-      #end
+    #end
     #else
       @explosionArr=Array.new(12);
       for i in 1..6

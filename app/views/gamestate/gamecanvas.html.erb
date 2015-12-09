@@ -51,6 +51,8 @@
             else if(memCount==1)
             {
 
+                alert('please wait for other player to join');
+
                 // do nothing, just wait for other player to join
                 //me.name='player1#'+playerId;
             }
@@ -153,3 +155,4 @@
 
 </div>
 <audio id="explosionAudio" src=<%= audio_path("snd_explosion2.wav") %> type="audio/mpeg"></audio>
+<audio id="mainAudio" src=<%= audio_path("castlemusic.mp3") %> type="audio/mpeg"></audio>

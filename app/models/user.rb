@@ -9,7 +9,7 @@ class User < ActiveRecord::Base
                     uniqueness: { case_sensitive: false }
   has_secure_password
   validates :password, presence: true, length: { minimum: 6 }, allow_nil: true
-
+  self.primary_key = 'id'
   class << self
     # Returns the hash digest of the given string.
     def digest(string)
@@ -43,19 +43,14 @@ class User < ActiveRecord::Base
   end
 
   def self.sign_in_from_omniauth(auth)
+
     find_by(provider: auth['provider'], uid: auth['uid']) ||
         create_user_from_omniauth(auth)
-
   end
 
   def self.create_user_from_omniauth(auth)
-    create(
-        provider: auth['provider'],
-        uid: auth['uid'],
-        name: auth['info']['name'],
-        email: auth['info']['email']
-    )
-
+    puts "create user from omniauth"
+    create(provider: auth['provider'], uid: auth['uid'], name: auth['info']['name'], email: auth['info']['email'],password:'abcd@123')
   end
 
 # Activates an account.

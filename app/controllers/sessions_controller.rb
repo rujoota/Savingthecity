@@ -24,15 +24,20 @@ class SessionsController < ApplicationController
   end
 
   def create_fb_user
+    #connection = ActiveRecord::Base.connection
+    #connection.execute("alter table users add primary key(id)")
+
     auth=request.env["omniauth.auth"]
     session[:omniauth]=auth.except('extra')
     user = User.find_by(email: auth['info']['email'].downcase)
     if user
+      puts "user exist"
       user.provider=auth['provider']
       user.uid=auth['uid']
       user.name=auth['info']['name']
       user.save
     else
+      puts "trying to create new user"
       user=User.sign_in_from_omniauth(auth)
     end
     log_in user

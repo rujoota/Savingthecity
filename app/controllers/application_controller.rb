@@ -5,7 +5,10 @@ class ApplicationController < ActionController::Base
   protect_from_forgery with: :null_session
   include SessionsHelper
   before_action :set_auth
+
+  private
   def set_auth
+
     @fbauth=session[:omniauth] if session[:omniauth]
   end
 end
