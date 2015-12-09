@@ -16,7 +16,7 @@ default: &default
 
 development:
   <<: *default
-  database: db/savingthecity_dev
+  #database: db/savingthecity_dev
   adapter: postgresql
   host: localhost
   username: user
