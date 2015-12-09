@@ -3,6 +3,7 @@ class SessionsController < ApplicationController
   end
 
   def create
+
     user = User.find_by(email: params[:session][:email].downcase)
     if user && user.authenticate(params[:session][:password])
       #if user.activated?
@@ -22,8 +23,27 @@ class SessionsController < ApplicationController
     end
   end
 
+  def create_fb_user
+    auth=request.env["omniauth.auth"]
+    session[:omniauth]=auth.except('extra')
+    user = User.find_by(email: auth['info']['email'].downcase)
+    if user
+      user.provider=auth['provider']
+      user.uid=auth['uid']
+      user.name=auth['info']['name']
+      user.save
+    else
+      user=User.sign_in_from_omniauth(auth)
+    end
+    log_in user
+    redirect_to root_url
+  end
+
   def destroy
     log_out if logged_in?
     redirect_to root_url
   end
+
+
+
 end

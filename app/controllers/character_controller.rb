@@ -33,4 +33,5 @@ class CharacterController < ApplicationController
 	end
 
 
+
 end

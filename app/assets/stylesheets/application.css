@@ -13,6 +13,16 @@
  *= require_tree .
  *= require_self
  */
+.fbicon
+{
+    height:30px;
+    width:30px;
+}
+.fbpic
+{
+    height:50px;
+    width:50px;
+}
 .select-char-link
 {
     text-decoration: none;

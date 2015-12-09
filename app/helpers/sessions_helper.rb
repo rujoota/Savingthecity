@@ -34,6 +34,10 @@ module SessionsHelper
     !current_user.nil?
   end
 
+  def logged_in_fb?
+    !session[:omniauth].nil?
+  end
+
   # Forgets a persistent session.
   def forget(user)
     user.forget
@@ -52,6 +56,7 @@ module SessionsHelper
   def log_out
     forget(current_user)
     session.delete(:user_id)
+    session[:omniauth]=nil
     delete_existing_gamestate(@current_user)
     @current_user = nil
   end

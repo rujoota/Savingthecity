@@ -37,7 +37,7 @@ Rails.application.routes.draw do
   post 'gamestate/gamecanvas'
   post 'gamestate/player_join'
   post 'gamestate/auth'
-
+  get 'auth/:provider/callback',to: "sessions#create_fb_user"
   resources :users
   resources :character
   resources :gamestate
