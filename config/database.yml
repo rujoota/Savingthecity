@@ -16,11 +16,11 @@ default: &default
 
 development:
   <<: *default
-  #database: db/savingthecity_dev
+  database: db/savingthecity_dev
   adapter: postgresql
   host: localhost
   username: user
-  database: app-dev
+  #database: app-dev
 
 # Warning: The database defined as "test" will be erased and
 # re-generated from your development database when you run "rake".
